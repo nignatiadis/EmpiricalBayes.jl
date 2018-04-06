@@ -43,9 +43,9 @@ function NormalConvolutionProblem(prior, marginal_grid)
     d
 end
 
-function convolution_matrix(::Type{DiscretizedNormalConvolutionProblem}, prior_grid, marginal_grid)
+function convolution_matrix(::Type{DiscretizedNormalConvolutionProblem}, prior_grid, marginal_grid; σ=1.0)
     #marginal_h = marginal_grid[2] - marginal_grid[1]
-    A = reshape([pdf(Normal(), x-μ) for x in prior_grid for μ in marginal_grid], 
+    A = reshape([pdf(Normal(0,σ), x-μ) for x in prior_grid for μ in marginal_grid],
                 length(marginal_grid), length(prior_grid))#.*marginal_h
     A
 end
@@ -63,14 +63,14 @@ function DiscretizedNormalConvolutionProblem(prior, prior_grid, marginal_grid)
     f_marginal = A*prior
     f_marginal ./= sum(f_marginal)
 
-    DiscretizedNormalConvolutionProblem(prior, prior_grid, prior_h, 
+    DiscretizedNormalConvolutionProblem(prior, prior_grid, prior_h,
                              f_marginal, marginal_grid, marginal_h)
 end
 
 
 function DiscretizedNormalConvolutionProblem(prior_distr::Distribution, prior_grid, marginal_grid)
     prior_h = prior_grid[2]-prior_grid[1]
-    prior = pdf.(prior_distr, prior_grid).*prior_h # makes this an approximate prob. measure 
+    prior = pdf.(prior_distr, prior_grid).*prior_h # makes this an approximate prob. measure
     DiscretizedNormalConvolutionProblem(prior, prior_grid, marginal_grid)
 end
 
@@ -110,7 +110,8 @@ struct MixingNormalConvolutionProblem{T<:Distribution}
 end
 
 
-function MixingNormalConvolutionProblem(priors::Vector{T}, marginal_grid) where T<:Distribution
+function MixingNormalConvolutionProblem(priors::Vector{T},
+    marginal_grid, prior_mixture_coef=ones(n_priors)./n_priors) where T<:Distribution
 
     marginal_grid = collect(marginal_grid)
 
@@ -150,6 +151,10 @@ end
 function Distributions.pdf(ds::MixingNormalConvolutionProblem, mixing_coeff, grid)
      d = MixtureModel(ds.priors, vec(mixing_coeff))
      pdf.(d, grid)
+end
+
+function Distributions.pdf(ds::MixingNormalConvolutionProblem, grid)
+     Distributions.pdf(ds, ds.prior_mixture_coef, grid)
 end
 
 function NormalConvolutionProblem(ds::MixingNormalConvolutionProblem, mixing_coeff)
