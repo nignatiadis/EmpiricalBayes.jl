@@ -17,8 +17,9 @@ include("bias_adjusted_ci.jl")
 include("BayesProblem.jl")
 include("PriorSets.jl")
 include("f_modeling.jl")
-include("donoho_minimax.jl")
 include("GModels/npmle.jl")
+include("donoho_minimax_calibrator.jl")
+include("donoho_minimax_ci.jl")
 
 export NormalConvolutionProblem,
        DiscretizedNormalConvolutionProblem,
@@ -30,5 +31,9 @@ export NormalConvolutionProblem,
        get_plus_minus,
        BinnedMarginalDensity,
        BinnedCalibrator,
-       NPMLE
+       MinimaxCalibrator,
+       NPMLE,
+       check_bias,
+       donoho_ci,
+       DonohoCI
 end # module

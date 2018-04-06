@@ -111,7 +111,8 @@ end
 
 
 function MixingNormalConvolutionProblem(priors::Vector{T},
-    marginal_grid, prior_mixture_coef=ones(n_priors)./n_priors) where T<:Distribution
+            marginal_grid,
+            prior_mixture_coef=ones(length(priors))./length(priors)) where T<:Distribution
 
     marginal_grid = collect(marginal_grid)
 

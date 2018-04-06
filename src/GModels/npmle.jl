@@ -79,14 +79,15 @@ function npmle_dual_hist(prior_grid, marginal_grid, Xs;  θ=0.0, maxiter=1_000_0
 end
 
 
-function fit(::Type{NPMLE}, prior_grid, marginal_grid, Xs; σ=1.0)
-   res= npmle_dual_hist(prior_grid, marginal_grid, Xs; σ_std=σ)
+function StatsBase.fit(::Type{NPMLE}, prior_grid, marginal_grid, Xs; σ=0.0)
+    σ_std = sqrt(σ^2 + 1)
+   res= npmle_dual_hist(prior_grid, marginal_grid, Xs; σ_std=σ_std)
    # add some checks that everything went well..
    idx = find(res .> 0)
    prior_grid = prior_grid[idx]
    prior_mixing = res[idx]
    prior_mixing = prior_mixing/sum(prior_mixing)
-   m = MixtureModel(Normal, prior_grid, prior_mixing)
+   m = MixtureModel(Normal, collect(zip(prior_grid, σ*ones(prior_grid))), prior_mixing)
    NPMLE(prior_grid, prior_mixing, marginal_grid, m, σ)
 end
 
@@ -94,5 +95,11 @@ end
 function MixingNormalConvolutionProblem(a::NPMLE, marginal_grid)
     priors = a.marginal.components
     mixing_coef = a.marginal.prior.p
-    EmpiricalBayes.MixingNormalConvolutionProblem(priors ,marginal_grid, mixing_coef)
+    MixingNormalConvolutionProblem(priors ,marginal_grid, mixing_coef)
+end
+
+
+function NormalConvolutionProblem(a::NPMLE, marginal_grid)
+   m =  MixingNormalConvolutionProblem(a ,marginal_grid)
+   NormalConvolutionProblem(m, a.prior_mixing)
 end
