@@ -5,7 +5,7 @@ struct DonohoCI
     calibrated_target::Float64
     ci_left::Float64
     ci_right::Float64
-    ma::MinimaxCalibrator
+    f::BinnedMarginalDensity
 end
 
 function donoho_ci(Xs, marginal_grid, prior_grid, target_x, σ, est_method)
@@ -43,7 +43,7 @@ function donoho_ci(Xs, marginal_grid, prior_grid, target_x, σ, est_method)
         calib_target,
         ci_left,
         ci_right,
-        ma::MinimaxCalibrator)
+        f)
 end
 
 function myfit(Xs, target_x, marginal_grid, est_method::NormalConvolutionProblem, σ)
