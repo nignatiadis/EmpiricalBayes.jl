@@ -7,15 +7,18 @@ using Cubature
 using Gurobi
 using Convex
 using Roots
+using TSVD
 
 import Base: length
 import Distributions: pdf
+import StatsBase: fit
 
 include("bias_adjusted_ci.jl")
 include("BayesProblem.jl")
 include("PriorSets.jl")
 include("f_modeling.jl")
 include("donoho_minimax.jl")
+include("GModels/npmle.jl")
 
 export NormalConvolutionProblem,
        DiscretizedNormalConvolutionProblem,
@@ -26,5 +29,6 @@ export NormalConvolutionProblem,
        posterior_stats,
        get_plus_minus,
        BinnedMarginalDensity,
-       BinnedCalibrator
+       BinnedCalibrator,
+       NPMLE
 end # module
