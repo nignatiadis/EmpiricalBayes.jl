@@ -44,9 +44,9 @@ function NormalConvolutionProblem(prior, marginal_grid)
 end
 
 function convolution_matrix(::Type{DiscretizedNormalConvolutionProblem}, prior_grid, marginal_grid)
-    marginal_h = marginal_grid[2] - marginal_grid[1]
+    #marginal_h = marginal_grid[2] - marginal_grid[1]
     A = reshape([pdf(Normal(), x-μ) for x in prior_grid for μ in marginal_grid], 
-                length(marginal_grid), length(prior_grid)).*marginal_h
+                length(marginal_grid), length(prior_grid))#.*marginal_h
     A
 end
 
@@ -75,6 +75,7 @@ function DiscretizedNormalConvolutionProblem(prior_distr::Distribution, prior_gr
 end
 
 
+
 function posterior_stats(d::NormalConvolutionProblem, f, x)
     prior = d.prior
     Z = Normal()
@@ -89,4 +90,69 @@ function posterior_stats(d::DiscretizedNormalConvolutionProblem, ψ, x)
     post_num = d.prior'*(ψ.(prior_grid).*pdf.(Normal(), prior_grid .- x))
     post_denom = d.prior'* pdf.(Normal(), prior_grid .- x)
     (post_num, post_denom, post_num/post_denom)
+end
+
+
+
+
+function StatsBase.rand(d::NormalConvolutionProblem, n)
+     μs = rand(d.prior, n)
+     μs .+ randn(n)
+end
+
+
+struct MixingNormalConvolutionProblem{T<:Distribution}
+    priors::Vector{T}
+    prior_mixture_coef::Vector{Float64}
+    marginal_map::Matrix{Float64} #map pi_s -> marginal dbn
+    marginal_grid::Vector{Float64}
+    marginal_h::Float64
+end
+
+
+function MixingNormalConvolutionProblem(priors::Vector{T}, marginal_grid) where T<:Distribution
+
+    marginal_grid = collect(marginal_grid)
+
+    #marginal as function of specified prior..
+    n_priors = length(priors)
+    n_marginal_grid = length(marginal_grid)
+    marginal_h = marginal_grid[2] - marginal_grid[1]
+
+    marginal_map = zeros(Float64, n_marginal_grid, n_priors)
+    for i=1:n_priors
+        tmp = NormalConvolutionProblem(priors[i], marginal_grid)
+        marginal_map[:,i] = tmp.marginal
+    end
+    MixingNormalConvolutionProblem(priors, ones(n_priors)./n_priors,
+                    marginal_map, marginal_grid, marginal_h)
+end
+
+function MixingNormalConvolutionProblem(::Type{Normal}, σ, prior_grid, marginal_grid)
+    priors = [Normal(μ, σ) for μ in prior_grid]
+    MixingNormalConvolutionProblem(priors, marginal_grid)
+end
+
+# TODO: Implement using iterator specification instaed..
+function index_mixing(d::MixingNormalConvolutionProblem, i)
+    NormalConvolutionProblem(d.priors[i], d.marginal_grid)
+end
+
+
+function posterior_stats(d::MixingNormalConvolutionProblem, f, x)
+    [posterior_stats(index_mixing(d,i), f, x) for i=1:length(d.priors)]
+end
+
+function Base.length(ds::MixingNormalConvolutionProblem)
+    length(ds.priors)
+end
+
+function Distributions.pdf(ds::MixingNormalConvolutionProblem, mixing_coeff, grid)
+     d = MixtureModel(ds.priors, vec(mixing_coeff))
+     pdf.(d, grid)
+end
+
+function NormalConvolutionProblem(ds::MixingNormalConvolutionProblem, mixing_coeff)
+    prior =  MixtureModel(ds.priors, vec(mixing_coeff))
+    NormalConvolutionProblem(prior, ds.marginal_grid)
 end
