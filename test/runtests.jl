@@ -7,7 +7,8 @@ using QuadGK
 
 # test if convolution matrix works for small n..
 A = convolution_matrix(DiscretizedNormalConvolutionProblem, linspace(-1,1,4), linspace(-7,7,2000))
-@test isapprox(sum(A,1), ones(4)'; atol=1e-4)
+h = linspace(-7,7,2000)[2] - linspace(-7,7,2000)[1]
+@test isapprox(sum(A,1)*h, ones(4)'; atol=1e-4)
 
 
 # test discretization approach vs. properly integrating..
