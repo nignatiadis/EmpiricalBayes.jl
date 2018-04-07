@@ -7,7 +7,7 @@ struct NPMLE{T<:Distribution}
 end
 
 
-function npmle_dual_hist(prior_grid, marginal_grid, Xs;  θ=0.0, maxiter=1_000_000, σ_std=1.0)
+function npmle_dual_hist(prior_grid, marginal_grid, Xs; L=0.0, θ=0.0, maxiter=1_000_000, σ_std=1.0)
 
     h = marginal_grid[2] - marginal_grid[1]
     edges = [marginal_grid-h/2; maximum(marginal_grid)+h/2]
@@ -22,7 +22,10 @@ function npmle_dual_hist(prior_grid, marginal_grid, Xs;  θ=0.0, maxiter=1_000_0
     #A = NormalConvolutionMatrix(prior_grid,Xs)
     A = convolution_matrix(DiscretizedNormalConvolutionProblem, prior_grid, marginal_grid_active; σ=σ_std);
 
-    L = real(tsvd(A)[2][1])
+    if L==0.0
+        L = real(tsvd(A)[2][1])
+        @show L
+    end
     σ = 1/L/1.1
     τ = 1/L/1.1
 
@@ -79,9 +82,9 @@ function npmle_dual_hist(prior_grid, marginal_grid, Xs;  θ=0.0, maxiter=1_000_0
 end
 
 
-function StatsBase.fit(::Type{NPMLE}, prior_grid, marginal_grid, Xs; σ=0.0)
+function StatsBase.fit(::Type{NPMLE}, prior_grid, marginal_grid, Xs; σ=0.0, args...)
     σ_std = sqrt(σ^2 + 1)
-   res= npmle_dual_hist(prior_grid, marginal_grid, Xs; σ_std=σ_std)
+   res= npmle_dual_hist(prior_grid, marginal_grid, Xs; σ_std=σ_std, args...)
    # add some checks that everything went well..
    idx = find(res .> 0)
    prior_grid = prior_grid[idx]
