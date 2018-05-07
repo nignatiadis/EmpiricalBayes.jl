@@ -47,7 +47,7 @@ function donoho_ci(Xs, marginal_grid, prior_grid, target_x, σ, est_method)
 end
 
 function myfit(Xs, target_x, marginal_grid, est_method::NormalConvolutionProblem, σ)
-    d_true = NormalConvolutionProblem(Normal(1.08,0.5), marginal_grid)
+    d_true = est_method
     post_stats = posterior_stats(d_true, x->1*(x>=0), target_x)
     f = BinnedMarginalDensity(d_true)
     (post_stats[1], post_stats[2], f)

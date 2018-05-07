@@ -10,7 +10,7 @@ using Roots
 using TSVD
 
 import Base: length
-import Distributions: pdf
+import Distributions: pdf, estimate, cf
 import StatsBase: fit
 
 include("bias_adjusted_ci.jl")
@@ -20,6 +20,8 @@ include("f_modeling.jl")
 include("GModels/npmle.jl")
 include("donoho_minimax_calibrator.jl")
 include("donoho_minimax_ci.jl")
+include("inference_targets.jl")
+include("FModels/comte_butucea.jl")
 
 export NormalConvolutionProblem,
        DiscretizedNormalConvolutionProblem,
@@ -35,5 +37,8 @@ export NormalConvolutionProblem,
        NPMLE,
        check_bias,
        donoho_ci,
-       DonohoCI
+       DonohoCI,
+       ComteButucea,
+       MarginalDensityTarget,
+       PosteriorProbabilityTarget
 end # module

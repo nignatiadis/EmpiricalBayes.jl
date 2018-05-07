@@ -10,6 +10,11 @@ function BinnedCalibrator(marginal_grid, Q, Qo)
     BinnedCalibrator(marginal_grid, marginal_h, Q, Qo)
 end
 
+function BinnedCalibrator(marginal_grid, Q)
+    BinnedCalibrator(marginal_grid, Q, zero(Float64))
+end
+
+
 function (c::BinnedCalibrator)(x)
     marginal_grid = c.marginal_grid
     marginal_h = c.marginal_h
