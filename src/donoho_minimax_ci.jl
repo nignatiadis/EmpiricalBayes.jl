@@ -8,7 +8,7 @@ struct DonohoCI
     f::BinnedMarginalDensity
 end
 
-function donoho_ci(Xs, marginal_grid, prior_grid, target_x, σ, est_method)
+function donoho_ci(Xs, marginal_grid, prior_grid, σ, target::PosteriorTarget, est_method)
     n_total = length(Xs)
     n_half = ceil(Int, n_total/2)
     idx_test = sample(1:n_total, n_half, replace=false)
@@ -23,9 +23,10 @@ function donoho_ci(Xs, marginal_grid, prior_grid, target_x, σ, est_method)
 
     # numerator/denominator
     ds = MixingNormalConvolutionProblem(Normal, σ, prior_grid, marginal_grid)
+
     target_f = x-> 1*(x>=0) - est_target
     # Test: Use the Donoho calibrator on the learned function
-    ma = MinimaxCalibrator(ds, f, n_half, target_f, target_x; rel_tol=1e-5)
+    ma = MinimaxCalibrator(ds, f, n_half, target_f, target_x; tol=1e-5)
 
     QXs =  ma.(Xs_test)
     sd = std(QXs)/sqrt(n_half)

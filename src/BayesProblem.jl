@@ -75,7 +75,7 @@ function DiscretizedNormalConvolutionProblem(prior_distr::Distribution, prior_gr
 end
 
 
-
+#---- TODO: maybe deprecate these two functions eventually
 function posterior_stats(d::NormalConvolutionProblem, f, x)
     prior = d.prior
     Z = Normal()
@@ -91,7 +91,18 @@ function posterior_stats(d::DiscretizedNormalConvolutionProblem, ψ, x)
     post_denom = d.prior'* pdf.(Normal(), prior_grid .- x)
     (post_num, post_denom, post_num/post_denom)
 end
+#----------------------------------------------------------------------
+# main fun -- rename eventually
+function posterior_stats(d::NormalConvolutionProblem, t::LinearInferenceTarget)
+    prior = d.prior
+    quadgk(β ->  pdf(prior, β)*riesz_representer(t, β) , -20,20)[1]
+end
 
+function posterior_stats(d::NormalConvolutionProblem, t::PosteriorTarget)
+    num = posterior_stats(d, t.num)
+    denom = posterior_stats(d, t.denom)
+    (num, denom, post_num/post_denom)
+end
 
 
 
@@ -135,14 +146,14 @@ function MixingNormalConvolutionProblem(::Type{Normal}, σ, prior_grid, marginal
     MixingNormalConvolutionProblem(priors, marginal_grid)
 end
 
-# TODO: Implement using iterator specification instaed..
+# TODO: Implement using iterator specification instead..
 function index_mixing(d::MixingNormalConvolutionProblem, i)
     NormalConvolutionProblem(d.priors[i], d.marginal_grid)
 end
 
 
-function posterior_stats(d::MixingNormalConvolutionProblem, f, x)
-    [posterior_stats(index_mixing(d,i), f, x) for i=1:length(d.priors)]
+function posterior_stats(d::MixingNormalConvolutionProblem, t)
+    [posterior_stats(index_mixing(d,i), t) for i=1:length(d.priors)]
 end
 
 function Base.length(ds::MixingNormalConvolutionProblem)

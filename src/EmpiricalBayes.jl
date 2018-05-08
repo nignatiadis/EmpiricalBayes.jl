@@ -6,21 +6,24 @@ using QuadGK
 using Cubature
 using Gurobi
 using Convex
+using JuMP
 using Roots
 using TSVD
+using SpecialFunctions
+
 
 import Base: length
 import Distributions: pdf, estimate, cf
 import StatsBase: fit
 
 include("bias_adjusted_ci.jl")
+include("inference_targets.jl")
 include("BayesProblem.jl")
 include("PriorSets.jl")
 include("f_modeling.jl")
 include("GModels/npmle.jl")
 include("donoho_minimax_calibrator.jl")
 include("donoho_minimax_ci.jl")
-include("inference_targets.jl")
 include("FModels/comte_butucea.jl")
 
 export NormalConvolutionProblem,
@@ -40,5 +43,7 @@ export NormalConvolutionProblem,
        DonohoCI,
        ComteButucea,
        MarginalDensityTarget,
-       PosteriorProbabilityTarget
+       PosteriorTarget,
+       LFSRNumerator,
+       riesz_representer
 end # module

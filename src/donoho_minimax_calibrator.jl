@@ -38,8 +38,7 @@ mutable struct MinimaxCalibrator
     ds::MixingNormalConvolutionProblem
     f::BinnedMarginalDensity
     m::Int64
-    target_f::Function
-    target_x::Float64
+    target::LinearInferenceTarget
     ε_reg::Float64
     C::Float64
 end
@@ -51,8 +50,8 @@ end
 
 function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
                   f::BinnedMarginalDensity, m,
-                  target_f = x->1*(x>=0), target_x=2.0;
-                  C=2.0, max_iter=300,ε = 1e-6, rel_tol=1e-5, bias_check=true)
+                  target = LFSRNumerator(2.0);
+                  C=2.0, max_iter=300,ε = 1e-6, tol=1e-3, bias_check=false)
 
 
     n_priors = length(ds.priors)
@@ -63,82 +62,78 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
     n_marginal_grid = length(ds.marginal_grid)
 
     # Let us get linear functional
-    post_stats = posterior_stats(ds, target_f, target_x)
-    L = [z[1] for z in post_stats]
+    #post_stats = posterior_stats(ds, target)
+    #L = [z[1] for z in post_stats]
+    L = posterior_stats(ds, target)
 
     A = ds.marginal_map;
 
-    π1 = Convex.Variable(n_priors)
-    π2 = Convex.Variable(n_priors)
-    t = Convex.Variable(1)
+    jm = Model(solver=GurobiSolver(OutputFlag=0))
+    @variable(jm, π1[1:n_priors] >= 0)
+    @variable(jm, π2[1:n_priors] >= 0)
+    @variable(jm, t)
+    @variable(jm, f1[1:n_marginal_grid])
+    @variable(jm, f2[1:n_marginal_grid])
 
-    f1 = Convex.Variable(n_marginal_grid)
-    f2 = Convex.Variable(n_marginal_grid)
-
-    constr = [sum(π1)== 1, π1 >=0, sum(π2) == 1, π2 >= 0,
-          dot(L,π1-π2) == t,
-          A*π1 == f1, A*π2 == f2]
+    @constraint(jm, sum(π1)== 1 )
+    @constraint(jm, sum(π2)== 1 )
+    @constraint(jm, A*π1 .== f1)
+    @constraint(jm, A*π2 .== f2)
 
     if (C < Inf)
-         push!(constr, abs(f1 - f_marginal) <= C*f_marginal_reg)
-         push!(constr, abs(f2 - f_marginal) <= C*f_marginal_reg)
+        @constraint(jm, f1 .- f_marginal .<= C*f_marginal_reg)
+        @constraint(jm, f1 .- f_marginal .>= -C*f_marginal_reg)
+        @constraint(jm, f2 .- f_marginal .<= C*f_marginal_reg)
+        @constraint(jm, f2 .- f_marginal .>= -C*f_marginal_reg)
     end
 
-    init_prob = maximize(t, constr)
-    solve!(init_prob, GurobiSolver(NumericFocus=0, OutputFlag=0, OptimalityTol=1e-4))
+    @objective(jm, Max, dot(L,π1-π2))
+    status = solve(jm)
 
-    K_squared_init = norm(sqrt(m)*(f1.value-f2.value)./sqrt.(f_marginal_reg), 2)^2
-    t_init = t.value[1]
+    t_curr = getobjectivevalue(jm)
+    K_squared_curr = norm(sqrt(m)*(getvalue(f1).-getvalue(f2))./sqrt.(f_marginal_reg), 2)^2
 
-    init_obj = t_init^2/(K_squared_init+4)
+    curr_obj = t_curr^2/(K_squared_curr+4)
 
-    main_prob = minimize(sumsquares(dot(/)(f1-f2, sqrt.(f_marginal_reg))), constr);
 
-    Δt = t_init/10
+    t_min = 0.0;
+    t_max = t_curr;
+    t_mid = (t_min + t_curr)/2;
 
-    fix!(t, t_init - Δt)
-    solve!(main_prob, GurobiSolver(NumericFocus=0, OutputFlag=0, OptimalityTol=1e-4))
+    @constraint(jm, bias, dot(L,π1-π2) == t_mid)
+    # update objective as well
+    @objective(jm, Min, sum((f1-f2).^2./f_marginal_reg))
+    status = solve(jm)
 
-    prev_obj = init_obj
-    next_obj = t.value[1]^2/(4+main_prob.optval*m)
+    for j=1:max_iter
+        deriv = (2*t_mid*(4+getobjectivevalue(jm)*m)- getdual(bias)*t_mid^2*m)/(4+getobjectivevalue(jm)*m)^2
 
-    decr = false #stop once changes very little and we have already seen change in monotonicity
-
-    #all_obj = [prev_obj]
-    #ts = [t_init]
-    for k=1:max_iter
-        if (decr && (abs(next_obj-prev_obj) <= prev_obj *rel_tol))
-            break
+        if (deriv >= 0)
+            t_min = t_mid
+        else
+            t_max = t_mid
         end
+        t_mid = (t_min + t_max)/2
 
-       if (prev_obj > next_obj)
-           Δt = -Δt/2
-           decr=true
-       end
+        JuMP.setRHS( bias, t_mid)
+        status = solve(jm)
 
-       if t.value[1] - Δt < 0
-            Δt = Δt/10
-            continue
-        end
-        t_next =  t.value[1] - Δt
+        curr_obj = t_mid^2/(4+getobjectivevalue(jm)*m)
 
-
-        fix!(t, t_next)
-        solve!(main_prob, GurobiSolver(NumericFocus=0, OutputFlag=0, OptimalityTol=1e-4),warmstart=true)
-
-        prev_obj = next_obj
-        next_obj = t.value[1]^2/(4+main_prob.optval*m)
-        #push!(all_obj, next_obj)
-        #push!(ts, t_next)
+        (t_max - t_min < tol) && break # actually could easily calibrate at beginning
     end
 
-    fg1 = vec(f1.value)
-    fg2 = vec(f2.value)
-    K_squared = main_prob.optval*m
-    tg = t.value[1]
+    fg1 = getvalue(f1)
+    fg2 = getvalue(f2)
 
-    L_g1 = dot(L, vec(π1.value))
-    L_g2 = dot(L, vec(π2.value))
+    K_squared = getobjectivevalue(jm)*m
+    tg = t_mid
+
+    π1 = getvalue(π1)
+    π2 = getvalue(π2)
+
+    L_g1 = dot(L, π1)
+    L_g2 = dot(L, π2)
     L_g0 = (L_g1 + L_g2)/2
 
     Q = vec(m/(4+K_squared).*(fg1.-fg2)./f_marginal_reg .* tg)
@@ -148,15 +143,13 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
 
     Qo = L_g0 + Qo
 
-    max_bias = 2*t.value[1]/(4+K_squared)
-    sd = t.value[1]*sqrt(K_squared)/(4+K_squared)
+    max_bias = 2*tg/(4+K_squared)
+    sd = tg*sqrt(K_squared)/(4+K_squared)
     #(max_bias, sd, max_bias^2+sd^2, next_obj)
 
 
     Q_c = BinnedCalibrator(ds.marginal_grid, Q, Qo)
 
-    π1 = vec(π1.value)
-    π2 = vec(π2.value)
 
 
     # Let us recalculate the max bias to be on the safe side
@@ -171,8 +164,7 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
                       ds,
                       f,
                       m,
-                      target_f,
-                      target_x,
+                      target,
                       ε,
                       C)
 
@@ -193,8 +185,8 @@ function check_bias(ma::MinimaxCalibrator; maximization=true)
     f = ma.f
     C = ma.C
     ε = ma.ε_reg
-    target_f = ma.target_f
-    target_x = ma.target_x
+    target = ma.target
+
     Q = ma.Q
 
     n_priors = length(ds.priors)
@@ -205,7 +197,7 @@ function check_bias(ma::MinimaxCalibrator; maximization=true)
     n_marginal_grid = length(ds.marginal_grid)
 
     A = ds.marginal_map;
-    post_stats = posterior_stats(ds, target_f, target_x)
+    post_stats = posterior_stats(ds, target)
     L = [z[1] for z in post_stats]
 
     π3 = Convex.Variable(n_priors)
