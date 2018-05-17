@@ -51,7 +51,7 @@ end
 function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
                   f::BinnedMarginalDensity, m,
                   target = LFSRNumerator(2.0);
-                  C=2.0, max_iter=300,ε = 1e-6, tol=1e-3, bias_check=false)
+                  C=2.0, max_iter=300,ε = 1e-4, tol=1e-3, bias_check=false)
 
 
     n_priors = length(ds.priors)
@@ -60,6 +60,7 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
     f_marginal_reg = max.(f.marginal,ε)
 
     n_marginal_grid = length(ds.marginal_grid)
+    h_marginal_grid = ds.marginal_grid[2] - ds.marginal_grid[1]
 
     # Let us get linear functional
     #post_stats = posterior_stats(ds, target)
@@ -81,10 +82,14 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
     @constraint(jm, A*π2 .== f2)
 
     if (C < Inf)
-        @constraint(jm, f1 .- f_marginal .<= C*f_marginal_reg)
-        @constraint(jm, f1 .- f_marginal .>= -C*f_marginal_reg)
-        @constraint(jm, f2 .- f_marginal .<= C*f_marginal_reg)
-        @constraint(jm, f2 .- f_marginal .>= -C*f_marginal_reg)
+        #@constraint(jm, f1 .- f_marginal .<= C*f_marginal_reg)
+        #@constraint(jm, f1 .- f_marginal .>= -C*f_marginal_reg)
+        #@constraint(jm, f2 .- f_marginal .<= C*f_marginal_reg)
+        #@constraint(jm, f2 .- f_marginal .>= -C*f_marginal_reg)
+        @constraint(jm, f1 .- f_marginal .<= C*h_marginal_grid)
+        @constraint(jm, f1 .- f_marginal .>= -C*h_marginal_grid)
+        @constraint(jm, f2 .- f_marginal .<= C*h_marginal_grid)
+        @constraint(jm, f2 .- f_marginal .>= -C*h_marginal_grid)
     end
 
     @objective(jm, Max, dot(L,π1-π2))
@@ -180,21 +185,20 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
 end
 
 
-function check_bias(ma::MinimaxCalibrator; maximization=true)
-    ds = ma.ds
-    f = ma.f
-    C = ma.C
-    ε = ma.ε_reg
-    target = ma.target
+function check_bias(Q::BinnedCalibrator,
+                  ds::MixingNormalConvolutionProblem,
+                  f::BinnedMarginalDensity, m,
+                  target = LFSRNumerator(2.0);
+                  C=Inf, maximization=true)
 
-    Q = ma.Q
 
     n_priors = length(ds.priors)
 
     f_marginal = f.marginal
-    f_marginal_reg = max.(f.marginal,ε)
 
     n_marginal_grid = length(ds.marginal_grid)
+
+    h_marginal_grid = ds.marginal_grid[2] - ds.marginal_grid[1]
 
     A = ds.marginal_map;
     post_stats = posterior_stats(ds, target)
@@ -206,7 +210,7 @@ function check_bias(ma::MinimaxCalibrator; maximization=true)
     constr_max_bias = [sum(π3)== 1, π3 >=0, A*π3 == f3]
 
     if (C<Inf)
-        push!( constr_max_bias, abs(f3 - f_marginal) <= C*f_marginal_reg)
+        push!( constr_max_bias, abs(f3 - f_marginal) <= C*h_marginal_grid)
     end
 
     if maximization
@@ -220,4 +224,17 @@ function check_bias(ma::MinimaxCalibrator; maximization=true)
     Convex.clearmemory()
 
     opt_bias
+end
+
+function check_bias(ma::MinimaxCalibrator; maximization=true)
+    ds = ma.ds
+    f = ma.f
+    C = ma.C
+    ε = ma.ε_reg
+    m = ma.m
+    target = ma.target
+
+    Q = ma.Q
+
+    check_bias(Q, ds, f, m, target; C=C, maximization=maximization)
 end

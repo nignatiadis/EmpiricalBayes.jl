@@ -101,7 +101,7 @@ end
 function posterior_stats(d::NormalConvolutionProblem, t::PosteriorTarget)
     num = posterior_stats(d, t.num)
     denom = posterior_stats(d, t.denom)
-    (num, denom, post_num/post_denom)
+    (num, denom, num/denom)
 end
 
 

@@ -90,7 +90,7 @@ function StatsBase.fit(::Type{NPMLE}, prior_grid, marginal_grid, Xs; σ=0.0, arg
    prior_grid = prior_grid[idx]
    prior_mixing = res[idx]
    prior_mixing = prior_mixing/sum(prior_mixing)
-   m = MixtureModel(Normal, collect(zip(prior_grid, σ*ones(prior_grid))), prior_mixing)
+   m = MixtureModel(Normal, collect(zip(prior_grid, σ_std*ones(prior_grid))), prior_mixing)
    NPMLE(prior_grid, prior_mixing, marginal_grid, m, σ)
 end
 

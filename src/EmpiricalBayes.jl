@@ -45,5 +45,14 @@ export NormalConvolutionProblem,
        MarginalDensityTarget,
        PosteriorTarget,
        LFSRNumerator,
-       riesz_representer
+       riesz_representer,
+       LinearInferenceTarget,
+       InferenceTarget,
+       PosteriorTarget,
+       PosteriorMeanNumerator,
+       GeneralPosteriorLinearTarget,
+       donoho_test,
+       CalibratedNumerator,
+       donoho_test2
+
 end # module
