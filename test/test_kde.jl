@@ -39,3 +39,6 @@ f_nb = fit(BinnedMarginalDensityNeighborhood, Xs, marginal_grid)
 f_nb.C_std
 
 f_nb_ds = fit(BinnedMarginalDensityNeighborhood, Xs, ds)
+
+Xs_test = rand(d_true, m)
+full_CI = CEB_ci(Xs, Xs_test, ds, PosteriorTarget(PosteriorMeanNumerator(2.0)))

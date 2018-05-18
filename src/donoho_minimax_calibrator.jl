@@ -52,16 +52,17 @@ end
 function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
                   f::BinnedMarginalDensity, m,
                   target = LFSRNumerator(2.0);
-                  C=2.0, max_iter=300,ε = 1e-4, tol=1e-3, bias_check=false)
+                  C=2.0, max_iter=300,ε = 1e-2, tol=1e-3, bias_check=false)
 
 
     n_priors = length(ds.priors)
 
-    f_marginal = f.marginal
-    f_marginal_reg = max.(f.marginal,ε)
-
     n_marginal_grid = length(ds.marginal_grid)
     h_marginal_grid = ds.marginal_grid[2] - ds.marginal_grid[1]
+
+    f_marginal = f.marginal
+    f_marginal_reg = max.(f.marginal,ε*h_marginal_grid)
+
 
     # Let us get linear functional
     #post_stats = posterior_stats(ds, target)

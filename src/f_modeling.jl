@@ -7,3 +7,7 @@ end
 function BinnedMarginalDensity(d::NormalConvolutionProblem)
     BinnedMarginalDensity(d.marginal, d.marginal_grid, d.marginal_h)
 end
+
+function BinnedMarginalDensity(M_bd::Float64, marginal_grid, marginal_h)
+    BinnedMarginalDensity(ones(marginal_grid)*M_bd, marginal_grid, marginal_h);
+end

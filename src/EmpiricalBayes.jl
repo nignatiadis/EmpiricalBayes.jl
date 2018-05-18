@@ -57,6 +57,7 @@ export NormalConvolutionProblem,
        donoho_test2,
        SincKernel,
        sinc_kde,
-       BinnedMarginalDensityNeighborhood
+       BinnedMarginalDensityNeighborhood,
+       CEB_ci
 
 end # module
