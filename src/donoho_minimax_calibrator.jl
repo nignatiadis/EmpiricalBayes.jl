@@ -26,6 +26,7 @@ function (c::BinnedCalibrator)(x)
     Q[idx] + c.Qo
 end
 
+abstract type LinearEstimator end
 
 mutable struct MinimaxCalibrator
     Q::BinnedCalibrator
@@ -36,7 +37,7 @@ mutable struct MinimaxCalibrator
     π1::Vector{Float64}
     π2::Vector{Float64}
     ds::MixingNormalConvolutionProblem
-    f::BinnedMarginalDensity
+    f::BinnedMarginalDensity #have separate f for neighborhood and calibration?
     m::Int64
     target::LinearInferenceTarget
     ε_reg::Float64

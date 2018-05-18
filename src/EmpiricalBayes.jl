@@ -10,7 +10,7 @@ using JuMP
 using Roots
 using TSVD
 using SpecialFunctions
-
+using KernelDensity
 
 import Base: length
 import Distributions: pdf, estimate, cf
@@ -25,6 +25,7 @@ include("GModels/npmle.jl")
 include("donoho_minimax_calibrator.jl")
 include("donoho_minimax_ci.jl")
 include("FModels/comte_butucea.jl")
+include("FModels/kde.jl")
 
 export NormalConvolutionProblem,
        DiscretizedNormalConvolutionProblem,
@@ -53,6 +54,8 @@ export NormalConvolutionProblem,
        GeneralPosteriorLinearTarget,
        donoho_test,
        CalibratedNumerator,
-       donoho_test2
+       donoho_test2,
+       SincKernel,
+       sinc_kde
 
 end # module
