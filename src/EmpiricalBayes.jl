@@ -23,9 +23,9 @@ include("PriorSets.jl")
 include("f_modeling.jl")
 include("GModels/npmle.jl")
 include("donoho_minimax_calibrator.jl")
-include("donoho_minimax_ci.jl")
 include("FModels/comte_butucea.jl")
 include("FModels/kde.jl")
+include("donoho_minimax_ci.jl")
 
 export NormalConvolutionProblem,
        DiscretizedNormalConvolutionProblem,
@@ -56,6 +56,7 @@ export NormalConvolutionProblem,
        CalibratedNumerator,
        donoho_test2,
        SincKernel,
-       sinc_kde
+       sinc_kde,
+       BinnedMarginalDensityNeighborhood
 
 end # module

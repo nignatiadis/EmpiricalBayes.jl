@@ -111,6 +111,11 @@ function StatsBase.rand(d::NormalConvolutionProblem, n)
      μs .+ randn(n)
 end
 
+# standardize if we mean marginal or prior pdf?
+function pdf(d::NormalConvolutionProblem, x)
+    posterior_stats(d, MarginalDensityTarget(x))
+end
+
 
 struct MixingNormalConvolutionProblem{T<:Distribution}
     priors::Vector{T}

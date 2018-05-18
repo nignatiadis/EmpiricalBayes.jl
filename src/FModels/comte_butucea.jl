@@ -1,6 +1,7 @@
 struct ComteButucea
     Q::BinnedCalibrator
     h::Float64
+    m::Int64
     target::InferenceTarget
 end
 
@@ -19,7 +20,7 @@ end
 function ComteButucea(target::InferenceTarget, m::Int64, marginal_grid;
     h= default_bandwidth(ComteButucea, target, m))
     Qc = BinnedCalibrator(marginal_grid, comte_butucea.(marginal_grid, h, target))
-    ComteButucea(Qc, h, target)
+    ComteButucea(Qc, h, m, target)
 end
 
 function estimate(Xs,cb::ComteButucea)

@@ -205,27 +205,30 @@ function check_bias(Q::BinnedCalibrator,
     post_stats = posterior_stats(ds, target)
     L = [z[1] for z in post_stats]
 
-    π3 = Convex.Variable(n_priors)
-    f3 = Convex.Variable(n_marginal_grid)
+    jm = Model(solver=GurobiSolver(OutputFlag=0))
 
-    constr_max_bias = [sum(π3)== 1, π3 >=0, A*π3 == f3]
+    @variable(jm, π3[1:n_priors] >= 0)
+    @variable(jm, f3[1:n_marginal_grid])
 
-    if (C<Inf)
-        push!( constr_max_bias, abs(f3 - f_marginal) <= C*h_marginal_grid)
+    @constraint(jm, sum(π3)== 1 )
+    @constraint(jm, A*π3 .== f3)
+
+    if (C < Inf)
+        @constraint(jm, f3 .- f_marginal .<= C*h_marginal_grid)
+        @constraint(jm, f3 .- f_marginal .>= -C*h_marginal_grid)
     end
 
     if maximization
-        max_bias_prob = maximize( Q.Qo + dot(Q.Q,f3)-dot(L,π3), constr_max_bias)
+        @objective(jm, Max, Q.Qo + dot(Q.Q,f3)-dot(L,π3))
     else
-        max_bias_prob = minimize( Q.Qo + dot(Q.Q,f3)-dot(L,π3), constr_max_bias)
+        @objective(jm, Min, Q.Qo + dot(Q.Q,f3)-dot(L,π3))
     end
 
-    solve!(max_bias_prob, GurobiSolver(NumericFocus=0, OutputFlag=0, OptimalityTol=1e-6))
-    opt_bias = max_bias_prob.optval
-    Convex.clearmemory()
+    status = solve(jm)
 
-    opt_bias
+    t_curr = getobjectivevalue(jm)
 end
+
 
 function check_bias(ma::MinimaxCalibrator; maximization=true)
     ds = ma.ds
