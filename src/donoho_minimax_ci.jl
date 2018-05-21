@@ -22,12 +22,12 @@ end
 
 
 function donoho_ci(Xs, marginal_grid, prior_grid, σ, target::PosteriorTarget, est_method)
-    n_total = length(Xs)
-    n_half = ceil(Int, n_total/2)
-    idx_test = sample(1:n_total, n_half, replace=false)
-    idx_train = setdiff(1:n_total, idx_test)
-    Xs_train = Xs[idx_train]
-    Xs_test = Xs[idx_test]
+        n_total = length(Xs)
+        n_half = ceil(Int, n_total/2)
+        idx_test = sample(1:n_total, n_half, replace=false)
+        idx_train = setdiff(1:n_total, idx_test)
+        Xs_train = Xs[idx_train]
+        Xs_test = Xs[idx_test]
     donoho_ci(Xs_train, Xs_test, marginal_grid, prior_grid, σ, target, est_method)
 end
 
@@ -140,6 +140,8 @@ function donoho_test2(Xs_train, Xs_test,  f::BinnedMarginalDensity,
 
     return (don_ci, M_max_num, M_max_denom)
 end
+
+
 
 
 function CEB_ci(Xs_train, Xs_test,

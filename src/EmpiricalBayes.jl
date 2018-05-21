@@ -15,7 +15,7 @@ using RCall
 
 import Base: length
 import Distributions: pdf, estimate, cf
-import StatsBase: fit
+import StatsBase: fit, confint
 import RCall: rcopy, RClass, rcopytype
 
 include("bias_adjusted_ci.jl")

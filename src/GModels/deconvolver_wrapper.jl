@@ -8,9 +8,13 @@ end
 function fit(::Type{BradDeconvolveR}, Xs; c0=1.0,
            deltaAt = 0.0, pDegree=5, prior_grid=collect(-3.6:0.2:3.6))
     R"library(deconvolveR)"
-
-    R"result <- deconv(tau = $(prior_grid), X = $(Xs), c0=$(c0),
-                   deltaAt = $(deltaAt), family = 'Normal', pDegree = $(pDegree))"
+    if deltaAt == :nothing
+        R"result <- deconv(tau = $(prior_grid), X = $(Xs), c0=$(c0),
+                   deltaAt = NULL, family = 'Normal', pDegree = $(pDegree))"
+    else
+        R"result <- deconv(tau = $(prior_grid), X = $(Xs), c0=$(c0),
+                       deltaAt = $(deltaAt), family = 'Normal', pDegree = $(pDegree))"
+    end
     R"result_mat <- result$stats"
     R"result_cov <- result$cov.g"
     @rget result_mat
