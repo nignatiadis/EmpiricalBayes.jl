@@ -42,3 +42,21 @@ f_nb_ds = fit(BinnedMarginalDensityNeighborhood, Xs, ds)
 
 Xs_test = rand(d_true, m)
 full_CI = CEB_ci(Xs, Xs_test, ds, PosteriorTarget(PosteriorMeanNumerator(2.0)))
+
+full_CI[1].ci_left, full_CI[1].ci_right
+
+
+# Use output from first run to speed up 2nd run by factor 4!
+full_CI_fast_comp = CEB_ci(Xs, Xs_test, ds, PosteriorTarget(PosteriorMeanNumerator(2.0)),
+                            full_CI[2], full_CI[3], full_CI[4].C_bias)
+
+full_CI_fast_comp[1].ci_left, full_CI_fast_comp[1].ci_right
+
+@test full_CI[1].ci_left ≈ full_CI_fast_comp[1].ci_left atol=0.005
+@test full_CI[1].ci_right ≈ full_CI_fast_comp[1].ci_right atol=0.005
+
+full_CI_inf = CEB_ci(Xs, Xs_test, ds, PosteriorTarget(PosteriorMeanNumerator(2.0)); C=Inf)
+
+full_CI_inf[1].ci_left, full_CI_inf[1].ci_right
+
+posterior_stats(d_true,  PosteriorTarget(PosteriorMeanNumerator(2.0)))

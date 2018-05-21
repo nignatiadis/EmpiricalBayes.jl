@@ -7,7 +7,8 @@ struct NPMLE{T<:Distribution}
 end
 
 
-function npmle_dual_hist(prior_grid, marginal_grid, Xs; L=0.0, θ=0.0, maxiter=1_000_000, σ_std=1.0)
+function npmle_dual_hist(prior_grid, marginal_grid, Xs; L=0.0, θ=0.0, maxiter=1_000_000,
+     σ_std=1.0)
 
     h = marginal_grid[2] - marginal_grid[1]
     edges = [marginal_grid-h/2; maximum(marginal_grid)+h/2]
@@ -68,7 +69,7 @@ function npmle_dual_hist(prior_grid, marginal_grid, Xs; L=0.0, θ=0.0, maxiter=1
        bar_x_n .= (1+θ).*x_n .- θ.*bar_x_n
 
        if mod(i-1,10000) == 0
-           if i>=20_000 && (abs(sum(y_n)-1) <= 0.01) && norm(x_n_tmp .- wts./x_n, 2) <= 0.025
+           if i>=20_000 && (abs(sum(y_n)-1) <= eps_tol) && norm(x_n_tmp .- wts./x_n, 2) <= 2*eps_tol
                 break
            end
        #    @show sum(h.*wts./x_n[1:end])

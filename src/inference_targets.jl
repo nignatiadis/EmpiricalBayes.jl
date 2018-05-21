@@ -73,7 +73,15 @@ function riesz_representer(target::CalibratedNumerator, t)
     θ̄ = target.θ̄
     riesz_representer(target.num, t) - θ̄*riesz_representer(MarginalDensityTarget(x),t)
 end
+#----------------------------------------------------------------------
 
+struct PriorTailProbability <: LinearInferenceTarget
+    cutoff::Float64
+end
+
+function riesz_representer(target::PriorTailProbability, t)
+    one(Float64)*(abs(t) >= target.cutoff)
+end
 
 #------------------- Beyond linear functionals ------------------------
 

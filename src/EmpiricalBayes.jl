@@ -11,21 +11,26 @@ using Roots
 using TSVD
 using SpecialFunctions
 using KernelDensity
+using RCall
 
 import Base: length
 import Distributions: pdf, estimate, cf
 import StatsBase: fit
+import RCall: rcopy, RClass, rcopytype
 
 include("bias_adjusted_ci.jl")
 include("inference_targets.jl")
 include("BayesProblem.jl")
 include("PriorSets.jl")
 include("f_modeling.jl")
+include("GModels/deconvolver_wrapper.jl")
+
 include("GModels/npmle.jl")
 include("donoho_minimax_calibrator.jl")
 include("FModels/comte_butucea.jl")
 include("FModels/kde.jl")
 include("donoho_minimax_ci.jl")
+
 
 export NormalConvolutionProblem,
        DiscretizedNormalConvolutionProblem,
@@ -58,6 +63,9 @@ export NormalConvolutionProblem,
        SincKernel,
        sinc_kde,
        BinnedMarginalDensityNeighborhood,
-       CEB_ci
+       CEB_ci,
+       CEB_ci_cb,
+       BradDeconvolveR,
+       PriorTailProbability
 
 end # module
