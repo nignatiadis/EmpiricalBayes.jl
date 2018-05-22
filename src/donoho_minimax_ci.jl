@@ -293,3 +293,12 @@ function CEB_ci_cb(Xs_train, Xs_test,
 
             return (don_ci, f_nb)
 end
+
+
+function StatsBase.confint(ci::DonohoCI, target::PosteriorTarget)
+    (ci.ci_left, ci.ci_right)
+end
+
+function estimate(ci::DonohoCI, target::PosteriorTarget)
+    ci.calibrated_target
+end
