@@ -14,7 +14,9 @@ function sinc_kde(Xs, marginal_grid;
     h = 1/sqrt(log(m))
     ker = SincKernel(h)
     (grid_min, grid_max) = extrema(marginal_grid)
-    marginal_h = marginal_grid[2] - marginal_grid[1]
+    # hack for now to avoid weird floating point tricks wherein the conversion from
+    # vector to range fails.. Should switch to ranges everywhere though
+    marginal_h = marginal_grid[2] - marginal_grid[1] - 1e-10
     f_marginal = kde(Xs, ws,
          grid_min:marginal_h:grid_max, ker);
     f_marginal
