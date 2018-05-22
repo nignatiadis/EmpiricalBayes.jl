@@ -34,7 +34,7 @@ m = comb[:m]
 true_dist = comb[:dist]
 x = comb[:x]
 
-marginal_grid = collect(linspace(-7,7,1001));
+marginal_grid = collect(linspace(-6.5,6.5,1001));
 prior_grid = collect(linspace(-3,3,121));
 marginal_h = marginal_grid[2]-marginal_grid[1];
 
