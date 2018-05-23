@@ -30,6 +30,7 @@ include("donoho_minimax_calibrator.jl")
 include("FModels/comte_butucea.jl")
 include("FModels/kde.jl")
 include("donoho_minimax_ci.jl")
+include("FModels/brown_greenshtein.jl")
 
 
 export NormalConvolutionProblem,
@@ -66,6 +67,6 @@ export NormalConvolutionProblem,
        CEB_ci,
        CEB_ci_cb,
        BradDeconvolveR,
-       PriorTailProbability
-
+       PriorTailProbability,
+       BrownGreenshtein
 end # module
