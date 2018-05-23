@@ -21,6 +21,8 @@ function riesz_representer(target::MarginalDensityTarget, t)
     pdf(Normal(), target.x - t)
 end
 
+pretty_label(target::MarginalDensityTarget) = L"f(x)"
+
 #----------- LFSRNumerator ---------------------------------
 # running under assumption X_i >=0...
 struct LFSRNumerator <: PosteriorNumeratorTarget
@@ -85,12 +87,15 @@ end
 
 #------------------- Beyond linear functionals ------------------------
 
-struct PosteriorTarget <: InferenceTarget
-    num::LinearInferenceTarget
+struct PosteriorTarget{T} <: InferenceTarget where T<:LinearInferenceTarget
+    num::T
     denom::MarginalDensityTarget
 end
 
 function PosteriorTarget(target::T) where T<:PosteriorNumeratorTarget
     x = target.x
-    PosteriorTarget(target, MarginalDensityTarget(x))
+    PosteriorTarget{T}(target, MarginalDensityTarget(x))
 end
+
+pretty_label(target::PosteriorTarget{LFSRNumerator}) = L"\Pr[\mu_i \geq 0 \mid X_i=x]"
+pretty_label(target::PosteriorTarget{PosteriorMeanNumerator}) = L"E[\mu_i \mid X_i=x]"

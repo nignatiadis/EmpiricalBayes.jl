@@ -5,13 +5,13 @@ using StatsBase
 using QuadGK
 using Cubature
 using Gurobi
-using Convex
 using JuMP
 using Roots
 using TSVD
 using SpecialFunctions
 using KernelDensity
 using RCall
+using LaTeXStrings
 
 import Base: length
 import Distributions: pdf, estimate, cf

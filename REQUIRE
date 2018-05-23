@@ -4,9 +4,9 @@ Distributions
 QuadGK
 Cubature
 Gurobi
-Convex
 Roots
 TSVD
 JuMP
 KernelDensity
 RCall
+LaTeXStrings
