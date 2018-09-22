@@ -21,7 +21,7 @@ function estimate(Xs, bg::BrownGreenshtein, target::PosteriorTarget{PosteriorMea
     x = target.num.x
     h = bg.bandwidth
     Z = Normal(0, 1)
-    @show denom = mean( pdf.(Z, (Xs.-x)./h))/h
+    denom = mean( pdf.(Z, (Xs.-x)./h))/h
     num = mean( (Xs.-x).*pdf.(Z, (Xs.-x)./h) )/(h^3)
     x + num/denom
 end

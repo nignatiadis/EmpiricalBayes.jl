@@ -1,7 +1,7 @@
 try
     using RCall
 end
-
+using RCall
 using Distributions
 using StatsBase
 using Iterators
@@ -26,7 +26,7 @@ for (true_dist, x, σ, m) in product(true_dists, xs, minimax_σs, ms)
 end
 
 i = parse(Int64, ARGS[1])
-
+i=1
 comb = combs[i]
 
 m = comb[:m]
@@ -34,7 +34,7 @@ m = comb[:m]
 true_dist = comb[:dist]
 x = comb[:x]
 
-marginal_grid = collect(linspace(-6.5,6.5,1001));
+marginal_grid = collect(linspace(-7.0,7.0,1001));
 prior_grid = collect(linspace(-3,3,121));
 marginal_h = marginal_grid[2]-marginal_grid[1];
 

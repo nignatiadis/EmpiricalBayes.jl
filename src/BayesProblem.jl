@@ -24,6 +24,7 @@ function marginal_grid_r(d::T) where T<:Union{NormalConvolutionProblem, Discreti
     d.marginal_grid .+ d.marginal_h./2
 end
 
+# this is kind of a bottleneck right now (i.e. slower than it should be)
 function NormalConvolutionProblem(prior, marginal_grid)
     marginal_grid = collect(marginal_grid)
     marginal_h = marginal_grid[2] - marginal_grid[1]

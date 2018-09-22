@@ -1,4 +1,9 @@
+try
+    using RCall
+end
+
 using Distributions
+using StatsBase
 using Iterators
 using Gurobi
 using JLD
@@ -6,7 +11,7 @@ using JLD
 using EmpiricalBayes
 
 
-nreps = 25
+nreps =25
 k_max = 16 #in total 25*16 replications
 
 true_dists = [MixtureModel([ Normal(-0.3,.2), Normal(0,0.9)],[0.8, 0.2])]
