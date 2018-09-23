@@ -8,7 +8,7 @@ using EmpiricalBayes
 
 nreps = 50
 true_dists = [MixtureModel([ Normal(-0.3,.5), Normal(1.05,.5)])]
-ys = collect(linspace(0,3,7))
+ys = collect(range(0, stop=3, length=7))
 minimax_σs = [0.1, 0.5, 1.0]
 ns = [20_000; 100_000]
 
@@ -28,8 +28,8 @@ n = comb[:n]
 true_dist = comb[:dist]
 y = comb[:y]
 
-marginal_grid = collect(linspace(-10,10,1001));
-prior_grid = collect(linspace(-3,3,51));
+marginal_grid = collect(range(-10, stop=10, length=1001));
+prior_grid = collect(range(-3, stop=3, length=51));
 d_true = NormalConvolutionProblem(true_dist, marginal_grid)
 f = BinnedMarginalDensity(d_true)
 m = n

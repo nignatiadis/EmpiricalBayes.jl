@@ -4,7 +4,7 @@ using StatsBase
 using Iterators
 using Gurobi
 using JLD
-using Base.Test
+using Test
 using EmpiricalBayes
 
 using KernelDensity
@@ -31,8 +31,8 @@ m = comb[:m]
 true_dist = comb[:dist]
 x = comb[:x]
 
-marginal_grid = collect(linspace(-7.0,7.0,1001));
-prior_grid = collect(linspace(-3,3,121));
+marginal_grid = collect(range(-7.0, stop=7.0, length=1001));
+prior_grid = collect(range(-3, stop=3, length=121));
 marginal_h = marginal_grid[2]-marginal_grid[1];
 
 d_true = NormalConvolutionProblem(true_dist, marginal_grid)
@@ -81,7 +81,7 @@ CEB_ci(Xs_train, Xs_test, ds, target,
 tmp1 = sinc_kde(Xs_train, marginal_grid)
 
 
-marginal_grid2 = collect(linspace(-6.0,6.0,1001));
+marginal_grid2 = collect(range(-6.0, stop=6.0, length=1001));
 tmp2= sinc_kde(Xs_train, marginal_grid2)
 
 marginal_h

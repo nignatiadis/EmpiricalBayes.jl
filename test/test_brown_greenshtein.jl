@@ -1,9 +1,9 @@
 using EmpiricalBayes
-using Base.Test
+using Test
 
 using Distributions
 
-marginal_grid = collect(linspace(-6,6,1001));
+marginal_grid = collect(range(-6, stop=6, length=1001));
 true_dist = Normal(0,1)
 d_true = NormalConvolutionProblem(true_dist, marginal_grid);
 

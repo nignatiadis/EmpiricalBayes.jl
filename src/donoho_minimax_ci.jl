@@ -79,7 +79,7 @@ function myfit(Xs, target, marginal_grid, est_method::NormalConvolutionProblem, 
 end
 
 function myfit(Xs, target, marginal_grid, est_method::Type{NPMLE}, σ)
-    prior_grid = linspace(-5,5, 401)
+    prior_grid = range(-5, stop=5, length=401)
     npmle = fit(NPMLE, collect(prior_grid), collect(marginal_grid), Xs; σ=σ)
     d_npmle = NormalConvolutionProblem(npmle, marginal_grid)
     post_stats = posterior_stats(d_npmle, target)

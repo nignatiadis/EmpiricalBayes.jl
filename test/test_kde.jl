@@ -1,23 +1,23 @@
 # compare output from KernelDensity.jl with SINC kernel
 # to what Comte-Butucea yields. (should be the same)
 using EmpiricalBayes
-using Base.Test
+using Test
 using Distributions
 
 
 true_dist = MixtureModel([ Normal(-0.3,.5), Normal(1.05,.5)])
-marginal_grid = collect(linspace(-6,6,1001));
+marginal_grid = collect(range(-6, stop=6, length=1001));
 
 marginal_h = marginal_grid[2] - marginal_grid[1] # should really replace by range
 
-prior_grid = collect(linspace(-3,3,121));
+prior_grid = collect(range(-3, stop=3, length=121));
 d_true = NormalConvolutionProblem(true_dist, marginal_grid);
 
 ds = MixingNormalConvolutionProblem(Normal, 0.2, prior_grid, marginal_grid);
 
 m = 3000
 
-srand(2)
+Random.seed!(2)
 Xs = rand(d_true, m)
 
 f_sinc = sinc_kde(Xs, marginal_grid)

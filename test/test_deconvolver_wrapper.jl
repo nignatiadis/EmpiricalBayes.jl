@@ -1,5 +1,5 @@
 using Plots
-using Base.Test
+using Test
 using RCall
 using EmpiricalBayes
 using StatsBase

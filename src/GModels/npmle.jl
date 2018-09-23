@@ -17,7 +17,7 @@ function npmle_dual_hist(prior_grid, marginal_grid, Xs; L=0.0, θ=0.0, maxiter=1
 
     hist = fit(Histogram, Xs, edges; closed=:right)
 
-    idx = find( hist.weights .> 0)
+    idx = findall( hist.weights .> 0)
 
     marginal_grid_active = marginal_grid[idx]
     #A = NormalConvolutionMatrix(prior_grid,Xs)
@@ -59,7 +59,7 @@ function npmle_dual_hist(prior_grid, marginal_grid, Xs; L=0.0, θ=0.0, maxiter=1
        y_n .= prox_σFstar.(y_n, σ)
 
        bar_x_n .= x_n
-       idx = find(y_n .> 0)
+       idx = findall(y_n .> 0)
 
 
        A_mul_B!(x_n_tmp, view(A, :, idx), view(y_n, idx))
@@ -87,7 +87,7 @@ function StatsBase.fit(::Type{NPMLE}, prior_grid, marginal_grid, Xs; σ=0.0, arg
     σ_std = sqrt(σ^2 + 1)
    res= npmle_dual_hist(prior_grid, marginal_grid, Xs; σ_std=σ_std, args...)
    # add some checks that everything went well..
-   idx = find(res .> 0)
+   idx = findall(res .> 0)
    prior_grid = prior_grid[idx]
    prior_mixing = res[idx]
    prior_mixing = prior_mixing/sum(prior_mixing)

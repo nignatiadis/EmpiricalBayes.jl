@@ -1,23 +1,23 @@
 using EmpiricalBayes
-using Base.Test
+using Test
 using Distributions
 using QuadGK
 
 # Move these to other parts eventually
 
 # test if convolution matrix works for small n..
-A = convolution_matrix(DiscretizedNormalConvolutionProblem, linspace(-1,1,4), linspace(-7,7,2000))
-h = linspace(-7,7,2000)[2] - linspace(-7,7,2000)[1]
+A = convolution_matrix(DiscretizedNormalConvolutionProblem, range(-1, stop=1, length=4), range(-7, stop=7, length=2000))
+h = range(-7, stop=7, length=2000)[2] - range(-7, stop=7, length=2000)[1]
 @test isapprox(sum(A,1)*h, ones(4)'; atol=1e-4)
 
 
 # test discretization approach vs. properly integrating..
 n_marginal_grid = 1001
-marginal_grid =  linspace(-3,3, n_marginal_grid)
+marginal_grid =  range(-3, stop=3, length=n_marginal_grid)
 marginal_h = marginal_grid[2]-marginal_grid[1]
 
 n_prior_grid = 1001
-prior_grid = linspace(-6,6, n_prior_grid)
+prior_grid = range(-6, stop=6, length=n_prior_grid)
 
 normal_normal = DiscretizedNormalConvolutionProblem(Normal(0,0.5), 
                     prior_grid,
