@@ -1,5 +1,6 @@
 try
     using RCall
+catch
 end
 
 using Distributions

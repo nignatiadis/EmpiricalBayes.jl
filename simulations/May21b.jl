@@ -1,5 +1,6 @@
 try
     using RCall
+catch
 end
 
 # same as May 21, but use different target, namely posterior expectation

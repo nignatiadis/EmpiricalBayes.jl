@@ -27,7 +27,7 @@ end
 
 function estimate(brad::BradDeconvolveR, target::LinearInferenceTarget; debias=true)
     gs = brad.g_prior
-    g_bias = debias?brad.g_bias:zeros(gs)
+    g_bias = debias ? brad.g_bias : zeros(gs)
     lin_coef = riesz_representer.(target,  brad.prior_grid)
     lin_coef'*(gs .+ g_bias)
 end
