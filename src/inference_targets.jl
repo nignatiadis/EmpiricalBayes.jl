@@ -23,6 +23,21 @@ end
 
 pretty_label(target::MarginalDensityTarget) = L"f(x)"
 
+
+#-------- Marginal Density --------------------------------
+struct MarginalDistributionTarget <: LinearInferenceTarget
+    x::Float64
+end
+
+
+function riesz_representer(target::MarginalDistributionTarget, t)
+    cdf(Normal(), target.x - t)
+end
+
+pretty_label(target::MarginalDistributionTarget) = L"F(x)"
+
+
+
 #----------- LFSRNumerator ---------------------------------
 # running under assumption X_i >=0...
 struct LFSRNumerator <: PosteriorNumeratorTarget

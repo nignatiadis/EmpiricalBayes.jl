@@ -8,6 +8,21 @@ end
 cf(a::SincKernel, t) = one(Float64)*(-1/a.h <= t <= 1/a.h)
 
 
+struct DeLaValleePoussinKernel <: Distributions.ContinuousUnivariateDistribution
+    h::Float64 #Bandwidth
+end
+
+function cf(a::DeLaValleePoussinKernel, t) = one(Float64)*(-1/a.h <= t <= 1/a.h)
+    if abs(t * a.h) <= 1
+        return(one(Float64))
+    elseif abs(t * a.h) <= 2
+        return(2*one(Float64) - abs(t * a.h))
+    else
+        return(zero(Float64))
+    end
+end
+
+
 function sinc_kde(Xs, marginal_grid;
      ws=KernelDensity.UniformWeights(length(Xs)))
     m = length(Xs)

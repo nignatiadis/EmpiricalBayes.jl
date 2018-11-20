@@ -38,6 +38,7 @@ function NormalConvolutionProblem(prior, marginal_grid)
 
     for i=1:length(marginal_l)
         # TODO: Fix hardcoded 20
+        # Idea: Speed this up for normal distributions..
        d.marginal[i] = hcubature(f, [-20, marginal_l[i]], [+20, marginal_r[i]])[1]
     end
     d.marginal ./= sum(d.marginal)
@@ -107,7 +108,7 @@ end
 
 
 
-function StatsBase.rand(d::NormalConvolutionProblem, n)
+function StatsBase.rand(d::NormalConvolutionProblem, n::Integer)
      μs = rand(d.prior, n)
      μs .+ randn(n)
 end

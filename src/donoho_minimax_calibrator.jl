@@ -52,7 +52,9 @@ end
 function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
                   f::BinnedMarginalDensity, m,
                   target = LFSRNumerator(2.0);
-                  C=2.0, max_iter=300,ε = 1e-2, tol=1e-3, bias_check=false)
+                  C=2.0, max_iter=300,ε = 1e-2, tol=1e-3,
+                  bias_check=false,
+                  solver = GurobiSolver(OutputFlag=0))
 
 
     n_priors = length(ds.priors)
@@ -71,7 +73,7 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
 
     A = ds.marginal_map;
 
-    jm = Model(solver=GurobiSolver(OutputFlag=0))
+    jm = Model(solver=solver)
     @variable(jm, π1[1:n_priors] >= 0)
     @variable(jm, π2[1:n_priors] >= 0)
     @variable(jm, t)
@@ -109,7 +111,7 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
 
     @constraint(jm, bias, dot(L,π1-π2) == t_mid)
     # update objective as well
-    @objective(jm, Min, sum((f1-f2).^2./f_marginal_reg))
+    @objective(jm, Min, sum((f1-f2).^2 ./f_marginal_reg))
     status = solve(jm)
 
     for j=1:max_iter
@@ -176,8 +178,8 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
                       C)
 
     if bias_check
-        opt1 = check_bias(ma)
-        opt2 = check_bias(ma; maximization= false)
+        opt1 = check_bias(ma, solver=solver)
+        opt2 = check_bias(ma; maximization= false, solver=solver)
         max_bias = max(abs(opt1), abs(opt2))
         ma.max_bias = max_bias
     end
@@ -191,7 +193,8 @@ function check_bias(Q::BinnedCalibrator,
                   ds::MixingNormalConvolutionProblem,
                   f::BinnedMarginalDensity, m,
                   target = LFSRNumerator(2.0);
-                  C=Inf, maximization=true)
+                  C=Inf, maximization=true,
+                  solver=GurobiSolver(OutputFlag=0))
 
 
     n_priors = length(ds.priors)
@@ -206,7 +209,7 @@ function check_bias(Q::BinnedCalibrator,
     post_stats = posterior_stats(ds, target)
     L = [z[1] for z in post_stats]
 
-    jm = Model(solver=GurobiSolver(OutputFlag=0))
+    jm = Model(solver=solver)
 
     @variable(jm, π3[1:n_priors] >= 0)
     @variable(jm, f3[1:n_marginal_grid])
