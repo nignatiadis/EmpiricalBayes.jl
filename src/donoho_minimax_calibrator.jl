@@ -42,6 +42,7 @@ mutable struct MinimaxCalibrator
     target::LinearInferenceTarget
     ε_reg::Float64
     C::Float64
+    δ::Float64
 end
 
 function (c::MinimaxCalibrator)(x)
@@ -52,7 +53,10 @@ end
 function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
                   f::BinnedMarginalDensity, m,
                   target = LFSRNumerator(2.0);
-                  C=2.0, max_iter=300,ε = 1e-2, tol=1e-3,
+                  C=0.1,
+                  max_iter=300,
+                  ε = isinf(C) ? 0.001 : C,
+                  tol=1e-5,
                   bias_check=false,
                   solver = GurobiSolver(OutputFlag=0))
 
@@ -136,6 +140,8 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
     fg2 = getvalue(f2)
 
     K_squared = getobjectivevalue(jm)*m
+    δ = sqrt(getobjectivevalue(jm))
+
     tg = t_mid
 
     π1 = getvalue(π1)
@@ -161,7 +167,7 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
 
 
 
-    # Let us recalculate the max bias to be on the safe side
+    # Let us recalculate the max bias to be on the safe side?
 
     ma = MinimaxCalibrator(Q_c,
                       max_bias,
@@ -175,7 +181,8 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
                       m,
                       target,
                       ε,
-                      C)
+                      C,
+                      δ )
 
     if bias_check
         opt1 = check_bias(ma, solver=solver)

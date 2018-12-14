@@ -203,7 +203,11 @@ function CEB_ci(Xs_train, Xs_test,
 end
 
 function CEB_ci(Xs_train, Xs_test,
-            ds::MixingNormalConvolutionProblem, target::PosteriorTarget; C=:auto, conf=0.9, kwargs...)
+            ds::MixingNormalConvolutionProblem,
+            target::PosteriorTarget;
+            C=:auto,
+            conf=0.9,
+            kwargs...)
     # fix this
     m_train = length(Xs_train)
     m_test = length(Xs_test)

@@ -92,6 +92,7 @@ function riesz_representer(target::CalibratedNumerator, t)
 end
 #----------------------------------------------------------------------
 
+# TODO: Unify these two into one...
 struct PriorTailProbability <: LinearInferenceTarget
     cutoff::Float64
 end
@@ -100,6 +101,14 @@ function riesz_representer(target::PriorTailProbability, t)
     one(Float64)*(abs(t) >= target.cutoff)
 end
 
+
+struct OneSidedPriorTailProbability <: LinearInferenceTarget
+    cutoff::Float64
+end
+
+function riesz_representer(target::OneSidedPriorTailProbability, t)
+    one(Float64)*(t >= target.cutoff)
+end
 #------------------- Beyond linear functionals ------------------------
 
 struct PosteriorTarget{T} <: InferenceTarget where T<:LinearInferenceTarget
@@ -115,6 +124,9 @@ end
 pretty_label(target::PosteriorTarget{LFSRNumerator}) = L"\Pr[\mu_i \geq 0 \mid X_i=x]"
 pretty_label(target::PosteriorTarget{PosteriorMeanNumerator}) = L"E[\mu_i \mid X_i=x]"
 
+
+
+#--------------------- default API-------------------------------------------
 # Broadcasting behaviour
 
 broadcastable(target::InferenceTarget) = Ref(target)

@@ -9,5 +9,5 @@ function BinnedMarginalDensity(d::NormalConvolutionProblem)
 end
 
 function BinnedMarginalDensity(M_bd::Float64, marginal_grid, marginal_h)
-    BinnedMarginalDensity(ones(marginal_grid)*M_bd, marginal_grid, marginal_h);
+    BinnedMarginalDensity(fill(M_bd, size(marginal_grid)), marginal_grid, marginal_h);
 end

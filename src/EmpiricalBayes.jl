@@ -72,6 +72,7 @@ export NormalConvolutionProblem,
        CEB_ci_cb,
        BradDeconvolveR,
        PriorTailProbability,
+       PriorTailProbability
        BrownGreenshtein,
        KDECalibrator,
        inference_target

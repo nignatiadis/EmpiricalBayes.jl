@@ -39,11 +39,34 @@ function NormalConvolutionProblem(prior, marginal_grid)
     for i=1:length(marginal_l)
         # TODO: Fix hardcoded 20
         # Idea: Speed this up for normal distributions..
-       d.marginal[i] = hcubature(f, [-20, marginal_l[i]], [+20, marginal_r[i]])[1]
+       d.marginal[i] = hcubature(f, [-20, marginal_l[i]], [+20, marginal_r[i]];
+                                 rtol=1e-13)[1]
     end
     d.marginal ./= sum(d.marginal)
     d
 end
+
+function NormalConvolutionProblem(prior::Normal, marginal_grid)
+    marginal_grid = collect(marginal_grid)
+    marginal_h = marginal_grid[2] - marginal_grid[1]
+    d = NormalConvolutionProblem(prior, zeros(Float64, length(marginal_grid)), marginal_grid, marginal_h)
+    marginal_l = marginal_grid_l(d)
+    marginal_r = marginal_grid_r(d)
+
+    σ_marginal = sqrt(1 + prior.σ^2)
+    Z_marginal = Normal(0, σ_marginal)
+
+
+    for i=1:length(marginal_l)
+        #TODO: I really don't like how boundary is being handled right now
+        # Idea: Speed this up for normal distributions..
+       d.marginal[i] = quadgk(β ->  pdf(Z_marginal, β) , marginal_l[i],marginal_r[i])[1]
+    end
+    d.marginal ./= sum(d.marginal)
+    d
+end
+
+
 
 function convolution_matrix(::Type{DiscretizedNormalConvolutionProblem}, prior_grid, marginal_grid; σ=1.0)
     #marginal_h = marginal_grid[2] - marginal_grid[1]
