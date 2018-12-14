@@ -3,7 +3,7 @@ module EmpiricalBayes
 using Distributions
 using StatsBase
 using QuadGK
-using Cubature
+using HCubature
 using Gurobi
 using JuMP
 using Roots

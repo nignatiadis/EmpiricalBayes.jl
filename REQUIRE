@@ -2,7 +2,7 @@ julia 0.7
 StatsBase
 Distributions
 QuadGK
-Cubature
+HCubature
 Gurobi
 Roots
 TSVD
