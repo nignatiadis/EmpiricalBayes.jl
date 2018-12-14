@@ -1,5 +1,7 @@
 # compare output from KernelDensity.jl with SINC kernel
 # to what Comte-Butucea yields. (should be the same)
+# also look at how DeLaValleePoussin performs
+
 using EmpiricalBayes
 using Test
 using Distributions
@@ -20,7 +22,10 @@ m = 3000
 Random.seed!(2)
 Xs = rand(d_true, m)
 
-f_sinc = sinc_kde(Xs, marginal_grid)
+#----------------------------------------
+#---- Test with actual Sinc Kernel-------
+#----------------------------------------
+f_sinc = sinc_kde(Xs, marginal_grid, SincKernel)
 
 
 x_tst_1 = f_sinc.x[700]
@@ -28,10 +33,18 @@ f_tst_1 = f_sinc.density[700]
 
 # Let us compare to the result from comte_butucea
 f_cbt_1 = estimate(Xs, ComteButucea,
- MarginalDensityTarget(x_tst_1), marginal_grid)
+  MarginalDensityTarget(x_tst_1), marginal_grid)
 
 @test f_cbt_1 ≈ f_tst_1 atol=0.001
 
+#----- Check default dispatch ---------------------------------
+dv_kde = sinc_kde(Xs, marginal_grid, DeLaValleePoussinKernel)
+dv_kde_auto_dispatch = sinc_kde(Xs, marginal_grid)
+@test dv_kde.density == dv_kde_auto_dispatch.density
+
+#--------------------------------------------------------------
+#---- Tests with both Sinc and DeLaValleePoussin Kernels-------
+#--------------------------------------------------------------
 f_true = pdf.(d_true, marginal_grid)
 true_C = maximum(abs.(f_true .- f_sinc.density))
 

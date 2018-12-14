@@ -13,8 +13,10 @@ using KernelDensity
 using RCall
 using LaTeXStrings
 using LinearAlgebra
+using Random
 
 import Base: length
+import Base.Broadcast: broadcastable
 import Distributions: pdf, estimate, cf, ContinuousUnivariateDistribution
 import StatsBase: fit, confint
 import RCall: rcopy, RClass, rcopytype
@@ -70,5 +72,7 @@ export NormalConvolutionProblem,
        CEB_ci_cb,
        BradDeconvolveR,
        PriorTailProbability,
-       BrownGreenshtein
+       BrownGreenshtein,
+       KDECalibrator,
+       inference_target
 end # module

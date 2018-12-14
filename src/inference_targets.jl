@@ -114,3 +114,7 @@ end
 
 pretty_label(target::PosteriorTarget{LFSRNumerator}) = L"\Pr[\mu_i \geq 0 \mid X_i=x]"
 pretty_label(target::PosteriorTarget{PosteriorMeanNumerator}) = L"E[\mu_i \mid X_i=x]"
+
+# Broadcasting behaviour
+
+broadcastable(target::InferenceTarget) = Ref(target)

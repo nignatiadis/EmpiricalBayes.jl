@@ -5,6 +5,8 @@ struct ComteButucea
     target::InferenceTarget
 end
 
+inference_target(cb::ComteButucea) = cb.target
+
 default_bandwidth(::Type{ComteButucea}, target::MarginalDensityTarget, n) = sqrt(log(n))
 default_bandwidth(::Type{ComteButucea}, target::LFSRNumerator, n) = sqrt(log(n)*2/3)
 
