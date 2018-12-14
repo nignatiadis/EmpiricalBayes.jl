@@ -36,7 +36,7 @@ struct DeLaValleePoussinKernel <: ContinuousUnivariateDistribution
     h::Float64 #Bandwidth
 end
 
-default_bandwidth(a::Type{DeLaValleePoussinKernel}, m) = 1/sqrt(log(m))
+default_bandwidth(a::Type{DeLaValleePoussinKernel}, m) = 1.3/sqrt(log(m))
 
 function cf(a::DeLaValleePoussinKernel, t)
     if abs(t * a.h) <= 1
@@ -59,7 +59,7 @@ end
 function sinc_kde(Xs, marginal_grid, ::Type{T};
      ws=KernelDensity.UniformWeights(length(Xs))) where T<:ContinuousUnivariateDistribution
     m = length(Xs)
-    h = 1/sqrt(log(m))
+    h = default_bandwidth(T,m)
     ker = T(h)
     (grid_min, grid_max) = extrema(marginal_grid)
     # hack for now to avoid weird floating point tricks wherein the conversion from
@@ -90,7 +90,7 @@ function fit(::Type{BinnedMarginalDensityNeighborhood}, Xs,
     f_kde = sinc_kde(Xs, marginal_grid, T)
 
     m = length(Xs)
-    C_stds = Vector{Float64}(nboot)
+    C_stds = Vector{Float64}(undef, nboot)
 
     for k =1:nboot
         # Poisson bootstrap to estimate certainty band

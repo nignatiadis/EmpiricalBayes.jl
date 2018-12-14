@@ -5,7 +5,7 @@
 using EmpiricalBayes
 using Test
 using Distributions
-
+using Random
 
 true_dist = MixtureModel([ Normal(-0.3,.5), Normal(1.05,.5)])
 marginal_grid = collect(range(-6, stop=6, length=1001));
@@ -17,7 +17,7 @@ d_true = NormalConvolutionProblem(true_dist, marginal_grid);
 
 ds = MixingNormalConvolutionProblem(Normal, 0.2, prior_grid, marginal_grid);
 
-m = 3000
+m = 10_000
 
 Random.seed!(2)
 Xs = rand(d_true, m)
@@ -44,15 +44,25 @@ dv_kde_auto_dispatch = sinc_kde(Xs, marginal_grid)
 
 #--------------------------------------------------------------
 #---- Tests with both Sinc and DeLaValleePoussin Kernels-------
+#--- Are our bands longer than true bands?
 #--------------------------------------------------------------
-f_true = pdf.(d_true, marginal_grid)
-true_C = maximum(abs.(f_true .- f_sinc.density))
 
-f_nb = fit(BinnedMarginalDensityNeighborhood, Xs, marginal_grid)
-f_nb.C_std
+f_true = pdf.(Ref(d_true), marginal_grid)
 
-f_nb_ds = fit(BinnedMarginalDensityNeighborhood, Xs, ds)
+for T in [SincKernel, DeLaValleePoussinKernel]
+  f_kde= sinc_kde(Xs, marginal_grid, T)
+  true_C = maximum(abs.(f_true .- f_kde.density))
 
+  f_nb = fit(BinnedMarginalDensityNeighborhood, Xs, marginal_grid, T)
+  f_nb.C_std
+
+  f_nb_ds = fit(BinnedMarginalDensityNeighborhood, Xs, ds, T)
+  @show true_C, f_nb_ds.C_std, f_nb_ds.C_bias, f_nb_ds.C_std + f_nb_ds.C_bias
+  @test true_C <= f_nb_ds.C_std + f_nb_ds.C_bias
+end
+
+
+# What are these doing here?
 Xs_test = rand(d_true, m)
 full_CI = CEB_ci(Xs, Xs_test, ds, PosteriorTarget(PosteriorMeanNumerator(2.0)))
 
