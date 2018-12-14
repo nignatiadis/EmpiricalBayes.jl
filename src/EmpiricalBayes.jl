@@ -12,9 +12,10 @@ using SpecialFunctions
 using KernelDensity
 using RCall
 using LaTeXStrings
+using LinearAlgebra
 
 import Base: length
-import Distributions: pdf, estimate, cf
+import Distributions: pdf, estimate, cf, ContinuousUnivariateDistribution
 import StatsBase: fit, confint
 import RCall: rcopy, RClass, rcopytype
 
@@ -62,6 +63,7 @@ export NormalConvolutionProblem,
        CalibratedNumerator,
        donoho_test2,
        SincKernel,
+       DeLaValleePoussinKernel,
        sinc_kde,
        BinnedMarginalDensityNeighborhood,
        CEB_ci,
