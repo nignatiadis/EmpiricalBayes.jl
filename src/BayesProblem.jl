@@ -53,9 +53,9 @@ function NormalConvolutionProblem(prior::Normal, marginal_grid)
     marginal_l = marginal_grid_l(d)
     marginal_r = marginal_grid_r(d)
 
+    μ_marginal = prior.μ
     σ_marginal = sqrt(1 + prior.σ^2)
-    Z_marginal = Normal(0, σ_marginal)
-
+    Z_marginal = Normal(prior.μ, σ_marginal)
 
     for i=1:length(marginal_l)
         #TODO: I really don't like how boundary is being handled right now
