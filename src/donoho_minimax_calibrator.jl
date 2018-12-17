@@ -72,7 +72,7 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
     ε_trunc = ε*h_marginal_grid
     f_marginal = f.marginal
     if max_smoother
-        f_marginal_reg = smooth_poly_max.(ma_density_band.f.marginal,
+        f_marginal_reg = smooth_poly_max.(f.marginal,
                                           ε_trunc,
                                           max_smoother_κ);
     else
