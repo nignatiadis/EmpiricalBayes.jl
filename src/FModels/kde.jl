@@ -1,10 +1,11 @@
 # Basic way of constructing Neighborhoods.
 
-struct KDECalibrator
-    kernel::ContinuousUnivariateDistribution
+struct KDECalibrator{K} <: LinearEstimator where K<:ContinuousUnivariateDistribution
+    kernel::K
     Q::BinnedCalibrator
     m::Int64
 end
+
 
 function KDECalibrator(::Type{T}, m::Int64, marginal_grid;
     h= default_bandwidth(T, m)) where T<:ContinuousUnivariateDistribution
@@ -19,6 +20,8 @@ inference_target(a::KDECalibrator) = MarginalDensityTarget(0.0)
 struct SincKernel <: ContinuousUnivariateDistribution
     h::Float64 #Bandwidth
 end
+
+pretty_label(kd::KDECalibrator{SincKernel})  = "Sinc Kernel"
 
 default_bandwidth(a::Type{SincKernel}, m) = 1/sqrt(log(m))
 
@@ -35,6 +38,8 @@ end
 struct DeLaValleePoussinKernel <: ContinuousUnivariateDistribution
     h::Float64 #Bandwidth
 end
+
+pretty_label(kd::KDECalibrator{DeLaValleePoussinKernel})  = "DLVP Kernel"
 
 default_bandwidth(a::Type{DeLaValleePoussinKernel}, m) = 1.3/sqrt(log(m))
 

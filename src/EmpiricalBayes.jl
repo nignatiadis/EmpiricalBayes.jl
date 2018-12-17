@@ -14,6 +14,7 @@ using RCall
 using LaTeXStrings
 using LinearAlgebra
 using Random
+using RecipesBase
 
 import Base: length
 import Base.Broadcast: broadcastable
@@ -21,6 +22,8 @@ import Distributions: pdf, estimate, cf, ContinuousUnivariateDistribution
 import StatsBase: fit, confint
 import RCall: rcopy, RClass, rcopytype
 
+include("types.jl")
+include("utils.jl") # add tests
 include("bias_adjusted_ci.jl")
 include("inference_targets.jl")
 include("BayesProblem.jl")
@@ -34,9 +37,11 @@ include("FModels/comte_butucea.jl")
 include("FModels/kde.jl")
 include("donoho_minimax_ci.jl")
 include("FModels/brown_greenshtein.jl")
+include("plotrecipes.jl")
 
 
 export NormalConvolutionProblem,
+       LinearEstimator,
        DiscretizedNormalConvolutionProblem,
        MixingNormalConvolutionProblem,
        marginal_grid_l,
@@ -76,5 +81,6 @@ export NormalConvolutionProblem,
        BrownGreenshtein,
        KDECalibrator,
        inference_target,
-       MarginalDistributionTarget
+       MarginalDistributionTarget,
+       pretty_label
 end # module

@@ -1,9 +1,11 @@
-struct ComteButucea
+struct ComteButucea <: LinearEstimator
     Q::BinnedCalibrator
     h::Float64
     m::Int64
     target::InferenceTarget
 end
+
+pretty_label(cb::ComteButucea)  = "Butucea-Comte"
 
 inference_target(cb::ComteButucea) = cb.target
 

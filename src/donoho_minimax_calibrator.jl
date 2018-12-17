@@ -26,9 +26,8 @@ function (c::BinnedCalibrator)(x)
     Q[idx] + c.Qo
 end
 
-abstract type LinearEstimator end
 
-mutable struct MinimaxCalibrator
+mutable struct MinimaxCalibrator <: LinearEstimator
     Q::BinnedCalibrator
     max_bias::Float64
     sd::Float64 # not to be trusted though (i.e. recalculate)
@@ -45,6 +44,8 @@ mutable struct MinimaxCalibrator
     δ::Float64
 end
 
+pretty_label(ma::MinimaxCalibrator) = "Minimax"
+
 function (c::MinimaxCalibrator)(x)
     (c.Q)(x)
 end
@@ -58,7 +59,9 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
                   ε = isinf(C) ? 0.001 : C,
                   tol=1e-5,
                   bias_check=false,
-                  solver = GurobiSolver(OutputFlag=0))
+                  solver = GurobiSolver(OutputFlag=0),
+                  max_smoother=true,
+                  max_smoother_κ=0.1)
 
 
     n_priors = length(ds.priors)
@@ -66,9 +69,15 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
     n_marginal_grid = length(ds.marginal_grid)
     h_marginal_grid = ds.marginal_grid[2] - ds.marginal_grid[1]
 
+    ε_trunc = ε*h_marginal_grid
     f_marginal = f.marginal
-    f_marginal_reg = max.(f.marginal,ε*h_marginal_grid)
-
+    if max_smoother
+        f_marginal_reg = smooth_poly_max.(ma_density_band.f.marginal,
+                                          ε_trunc,
+                                          max_smoother_κ);
+    else
+        f_marginal_reg = max.(f.marginal,ε_trunc)
+    end
 
     # Let us get linear functional
     #post_stats = posterior_stats(ds, target)
