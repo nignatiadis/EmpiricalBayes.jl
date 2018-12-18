@@ -60,7 +60,7 @@ function MinimaxCalibrator(ds::MixingNormalConvolutionProblem,
                   tol=1e-5,
                   bias_check=false,
                   solver = GurobiSolver(OutputFlag=0),
-                  max_smoother=true,
+                  max_smoother=false,
                   max_smoother_κ=0.1)
 
 

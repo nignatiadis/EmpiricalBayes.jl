@@ -41,7 +41,7 @@ end
 
 pretty_label(kd::KDECalibrator{DeLaValleePoussinKernel})  = "DLVP Kernel"
 
-default_bandwidth(a::Type{DeLaValleePoussinKernel}, m) = 1.3/sqrt(log(m))
+default_bandwidth(a::Type{DeLaValleePoussinKernel}, m) = 1/sqrt(log(m))
 
 function cf(a::DeLaValleePoussinKernel, t)
     if abs(t * a.h) <= 1
@@ -84,8 +84,12 @@ mutable struct BinnedMarginalDensityNeighborhood
     f_kde::UnivariateKDE
     C_bias::Float64
     C_std::Float64
+    η_infl::Float64
 end
 
+function BinnedMarginalDensityNeighborhood(f, f_kde, C_bias,C_std)
+    BinnedMarginalDensityNeighborhood(f, f_kde, C_bias, C_std, 0.01)
+end
 # should be a fit function
 function fit(::Type{BinnedMarginalDensityNeighborhood}, Xs,
                 marginal_grid::Vector{Float64}, ::Type{T};
@@ -110,6 +114,15 @@ function fit(::Type{BinnedMarginalDensityNeighborhood}, Xs,
     f = BinnedMarginalDensity(f_kde.density * marginal_h, marginal_grid, marginal_h)
 
     BinnedMarginalDensityNeighborhood(f, f_kde, 0.0, C_std)
+end
+
+function fit(::Type{BinnedMarginalDensityNeighborhood}, Xs,
+       marginal_grid::Vector{Float64};
+       kwargs...)
+
+       fit(BinnedMarginalDensityNeighborhood, Xs,
+              marginal_grid, DeLaValleePoussinKernel;
+              kwargs...)
 end
 
 function fit(::Type{BinnedMarginalDensityNeighborhood}, Xs,

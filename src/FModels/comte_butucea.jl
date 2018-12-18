@@ -5,6 +5,11 @@ struct ComteButucea <: LinearEstimator
     target::InferenceTarget
 end
 
+function (c::ComteButucea)(x)
+    (c.Q)(x)
+end
+
+
 pretty_label(cb::ComteButucea)  = "Butucea-Comte"
 
 inference_target(cb::ComteButucea) = cb.target
