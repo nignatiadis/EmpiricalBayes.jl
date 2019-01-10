@@ -8,12 +8,12 @@ using JLD2
 using EmpiricalBayes
 
 
-nreps =1#14
-k_max = 1#10 #in total 25*16 replications
-ks_par = 1:2#1:10
+nreps = 4
+k_max = 10 #in total 25*16 replications
+ks_par = 1:10#1:10
 
 true_dists = [EmpiricalBayes.easy_dist, EmpiricalBayes.hard_dist]
-xs = [0.0,0.5]#collect(-3.0:0.5:3.0)
+xs = collect(-3.0:0.5:3.0)
 minimax_σs = [0.2]
 ms = [10_000]
 targets =[ [PosteriorTarget(PosteriorMeanNumerator(x)) for x in xs],
@@ -81,6 +81,5 @@ for k=1:k_max
         push!(sim_array, (calibrator_res, brad_fit))
     end
     res = (i, comb, sim_array)
-    @save "mysim_$(i)_$(k)_$(k_rep).jld2" res
-    #@save "/scratch/users/ignat/sims/May21/mysim_$(i)_$(k)$(k_rep).jld" res
+    @save "/scratch/users/ignat/sims/base_sim_Jan10/mysim_$(i)_$(k)$(k_rep).jld" res
 end
