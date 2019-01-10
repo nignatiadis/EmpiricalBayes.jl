@@ -12,7 +12,7 @@ struct SmoothedBradDeconvolveR <: EmpiricalBayesEstimator
 end
 
 function fit(::Type{BradDeconvolveR}, Xs; c0=0.01,
-           deltaAt = :nothing, pDegree=10, prior_grid=collect(-3.6:0.02:3.6))
+           deltaAt = :nothing, pDegree=5, prior_grid=collect(-3.6:0.02:3.6))
     R"library(deconvolveR)"
     if deltaAt == :nothing
         R"result <- deconv(tau = $(prior_grid), X = $(Xs), c0=$(c0),

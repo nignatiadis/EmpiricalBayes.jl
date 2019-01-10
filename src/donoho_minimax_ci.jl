@@ -37,6 +37,7 @@ function CEB_ci(Xs_train, Xs_test,
             target::PosteriorTarget,
             M_max_num::EmpiricalBayesEstimator, #
             M_max_denom::EmpiricalBayesEstimator=M_max_num;
+            f_nb::BinnedMarginalDensityNeighborhood = fit(BinnedMarginalDensityNeighborhood, Xs_train, ds),
             C=:auto, conf=0.9, kwargs...)
 
 
@@ -57,7 +58,6 @@ function CEB_ci(Xs_train, Xs_test,
             # Test: Use the Donoho calibrator on the learned function
 
     #TODO : Change to KWarg..
-    f_nb = fit(BinnedMarginalDensityNeighborhood, Xs_train, ds)
 
     if C==:auto
         C = f_nb.C_std*(1+f_nb.η_infl) + f_nb.C_bias
