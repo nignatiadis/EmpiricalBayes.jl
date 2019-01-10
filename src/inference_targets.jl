@@ -7,6 +7,8 @@ abstract type PosteriorNumeratorTarget <: LinearInferenceTarget end
 
 # TODO: Design this more carefully, maybe add function location() instead of requiring .x access
 
+#function integration_domain(t::LinearInferenceTarget)
+#end
 
 #-------- Marginal Density --------------------------------
 struct MarginalDensityTarget <: LinearInferenceTarget
@@ -121,8 +123,8 @@ function PosteriorTarget(target::T) where T<:PosteriorNumeratorTarget
     PosteriorTarget{T}(target, MarginalDensityTarget(x))
 end
 
-pretty_label(target::PosteriorTarget{LFSRNumerator}) = L"\Pr[\mu_i \geq 0 \mid X_i=x]"
-pretty_label(target::PosteriorTarget{PosteriorMeanNumerator}) = L"E[\mu_i \mid X_i=x]"
+pretty_label(target::PosteriorTarget{LFSRNumerator}) = L"\theta(x) := \Pr[\mu \geq 0 \mid X=x]"
+pretty_label(target::PosteriorTarget{PosteriorMeanNumerator}) = L"\theta(x) := E[\mu | X=x]"
 
 
 

@@ -104,8 +104,8 @@ end
 function posterior_stats(d::NormalConvolutionProblem, f, x)
     prior = d.prior
     Z = Normal()
-    post_num =  quadgk(β ->  f(β)*pdf(prior, β)*pdf(Z, x-β) , -20,20)[1]
-    post_denom = quadgk(β ->  pdf(prior, β)*pdf(Z, x-β) , -20,20)[1]
+    post_num =  quadgk(β ->  f(β)*pdf(prior, β)*pdf(Z, x-β) , -10,10)[1]
+    post_denom = quadgk(β ->  pdf(prior, β)*pdf(Z, x-β) , -10,10)[1]
     (post_num, post_denom, post_num/post_denom)
 end
 
@@ -118,9 +118,13 @@ function posterior_stats(d::DiscretizedNormalConvolutionProblem, ψ, x)
 end
 #----------------------------------------------------------------------
 # main fun -- rename eventually
+
+function posterior_stats(prior::ContinuousUnivariateDistribution, t::LinearInferenceTarget)
+    quadgk(β ->  pdf(prior, β)*riesz_representer(t, β) , -10,10)[1]
+end
+
 function posterior_stats(d::NormalConvolutionProblem, t::LinearInferenceTarget)
-    prior = d.prior
-    quadgk(β ->  pdf(prior, β)*riesz_representer(t, β) , -20,20)[1]
+    posterior_stats(d.prior, t)
 end
 
 function posterior_stats(d::NormalConvolutionProblem, t::PosteriorTarget)
@@ -142,6 +146,7 @@ function pdf(d::NormalConvolutionProblem, x)
 end
 
 
+# mmaybe lazy eval this and get marginal_map only once has been set
 struct MixingNormalConvolutionProblem{T<:Distribution}
     priors::Vector{T}
     prior_mixture_coef::Vector{Float64}

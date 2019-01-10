@@ -29,3 +29,6 @@ function supersmooth_max(x, ϵ, κ)
     mult_λ = (κ+1)*ϵ
     supersmooth_max((x-ϵ)/mult_λ)*mult_λ + ϵ
 end
+
+
+beyonce_palette = ["#424395" "#EB549A" "#5EC2DA" "#EBC915" "#018AC4"  "#550133"]

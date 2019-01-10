@@ -1,8 +1,8 @@
 struct CalibratedCI
     est_num::Float64
-    est_num_linear::LinearEstimator
+    est_num_linear::EmpiricalBayesEstimator #LinearEstimator
     est_denom::Float64
-    est_denom_linear::LinearEstimator
+    est_denom_linear::EmpiricalBayesEstimator #LinearEstimator
     est_target::Float64
     calibrated_target::Float64
     ci_left::Float64
@@ -14,6 +14,11 @@ struct CalibratedCI
 end
 
 function estimate(L::LinearEstimator, Xs)
+    mean(L.(Xs))
+end
+
+function estimate(L::LinearEstimator, target::LinearInferenceTarget, Xs)
+    # TODO: Add check that target is correct target
     mean(L.(Xs))
 end
 # provides lightweight CI functionality for linear functionals
@@ -30,8 +35,8 @@ end
 function CEB_ci(Xs_train, Xs_test,
             ds::MixingNormalConvolutionProblem,
             target::PosteriorTarget,
-            M_max_num::MinimaxCalibrator,
-            M_max_denom::MinimaxCalibrator;
+            M_max_num::EmpiricalBayesEstimator, #
+            M_max_denom::EmpiricalBayesEstimator=M_max_num;
             C=:auto, conf=0.9, kwargs...)
 
 
@@ -42,8 +47,8 @@ function CEB_ci(Xs_train, Xs_test,
     marginal_h = ds.marginal_h
 
 
-    num_res = estimate(M_max_num, Xs_train)
-    denom_res = estimate(M_max_denom, Xs_train)
+    num_res = estimate(M_max_num, target.num, Xs_train)
+    denom_res = estimate(M_max_denom, target.denom, Xs_train)
 
     #TODO: Check if denominator not sure to be >0... abort or throw warning
     est_target = num_res/denom_res
@@ -53,7 +58,7 @@ function CEB_ci(Xs_train, Xs_test,
 
     #TODO : Change to KWarg..
     f_nb = fit(BinnedMarginalDensityNeighborhood, Xs_train, ds)
-    f_nb.C_bias =
+
     if C==:auto
         C = f_nb.C_std*(1+f_nb.η_infl) + f_nb.C_bias
     end
@@ -120,6 +125,7 @@ function CEB_ci(Xs_train, Xs_test,
 
 end
 
+# TODO: Delete this, instead clean up
 function CEB_ci_cb(Xs_train, Xs_test,
             ds::MixingNormalConvolutionProblem, target::PosteriorTarget, C_bias;
             C=:auto, conf=0.9, kwargs...)

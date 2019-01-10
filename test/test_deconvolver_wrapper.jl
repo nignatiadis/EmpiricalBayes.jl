@@ -1,4 +1,3 @@
-using Plots
 using Test
 using RCall
 using EmpiricalBayes
@@ -70,3 +69,66 @@ r1-l1
 estimate(brad_jl, PosteriorTarget(PosteriorMeanNumerator(2.0));debias=false)
 
 confint(brad_jl, PosteriorTarget(PosteriorMeanNumerator(2.0)), 0.95, ;debias=false)
+
+
+## With LFSR Numerator
+
+## First a case in which result is really what we do not want
+## which happens when there is a large delta at 0.
+
+estimate(brad_jl, PosteriorTarget(LFSRNumerator(0.0));debias=true)
+confint(brad_jl, PosteriorTarget(LFSRNumerator(0.0)), 0.95, ;debias=false)
+
+
+lfsr_riesz = riesz_representer.(LFSRNumerator(2.0), tau)
+lfsr_riesz_at_0 = copy(lfsr_riesz)
+lfsr_riesz_at_0[19] /=2
+lfsr_riesz'*g_prob
+lfsr_riesz_at_0'*g_prob
+
+#
+brad_jl_no0 = fit(BradDeconvolveR, prostz; c0=1.0,
+                     deltaAt = :nothing)
+
+lfsr_riesz_at_0'*brad_jl_no0.g_prior
+lfsr_riesz'*brad_jl_no0.g_prior
+
+# Difference still not negligible, let us use a much larger grid.
+
+
+tau2 = collect(-3.6:0.002:3.6)
+brad_jl_tau2 = fit(BradDeconvolveR, prostz; c0=0.0,
+                     deltaAt = :nothing,  prior_grid=tau2)
+
+
+lfsr_riesz = riesz_representer.(LFSRNumerator(2.0), tau2)
+lfsr_riesz_at_0 = copy(lfsr_riesz)
+lfsr_riesz_at_0[181] /=2
+
+lfsr_riesz_at_0'*brad_jl_tau2.g_prior
+lfsr_riesz'*brad_jl_tau2.g_prior
+
+confint(brad_jl_tau2, LFSRNumerator(2.0), 0.95, ;debias=false)
+# Discretization error here is larger than confindence interval length. Ugh.
+
+
+# Let us..
+
+tau2
+# OK need to rework this from scratch more or less..
+# Idea: Make grid finer and properly integrate from a bit left to right.
+
+
+# TODO: 1) Implement the below
+# 2) Check if method gives correct coverage in Normal/Normal example
+# 3) Check how method behaves in our other two examples which we want to simulate from..
+function riesz_representer(target::LinearInferenceTarget, b::BradDeconvolveR)
+
+end
+
+# Afou ftasw kai isws koimh8w ligo ->
+# prwta na dw ola ta experiment settings pou 8elw na tre3w
+# Meta na dw pws leitourgei tou Brad, toulaxiston kapoies fores 8a 8elw swsto coverage
+# Isws kai ena grhgoro peirama na dw ti coverage petyxainoume...
+
+# Maybe even demonstrate everything on 1 simulation example....
