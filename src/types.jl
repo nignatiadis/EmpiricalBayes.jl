@@ -1,1 +1,2 @@
-abstract type LinearEstimator end
+abstract type EmpiricalBayesEstimator end
+abstract type LinearEstimator <: EmpiricalBayesEstimator end

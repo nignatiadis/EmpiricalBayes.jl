@@ -18,7 +18,7 @@ using RecipesBase
 
 import Base: length
 import Base.Broadcast: broadcastable
-import Distributions: pdf, estimate, cf, ContinuousUnivariateDistribution
+import Distributions: pdf, estimate, cf, MixtureModel, ContinuousUnivariateDistribution
 import StatsBase: fit, confint
 import RCall: rcopy, RClass, rcopytype
 
@@ -42,6 +42,7 @@ include("plotrecipes.jl")
 
 export NormalConvolutionProblem,
        LinearEstimator,
+       EmpiricalBayesEstimator,
        DiscretizedNormalConvolutionProblem,
        MixingNormalConvolutionProblem,
        marginal_grid_l,
@@ -76,6 +77,7 @@ export NormalConvolutionProblem,
        CEB_ci,
        CEB_ci_cb,
        BradDeconvolveR,
+       SmoothedBradDeconvolveR,
        PriorTailProbability,
        OneSidedPriorTailProbability,
        BrownGreenshtein,

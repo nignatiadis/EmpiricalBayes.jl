@@ -16,3 +16,9 @@ ash_bignormal = Normal(0,4)
 
 ash_bimodal = MixtureModel( [Normal(-2,1); Normal(2,1)],
                             [0.5;0.5] )
+
+
+# Distributions used for simulations in this paper
+
+hard_dist = MixtureModel([ Normal(-0.2,.2), Normal(0,0.9)],[0.7, 0.3])
+easy_dist = MixtureModel([Normal(-1.5,.2), Normal(1.5, .2)])
