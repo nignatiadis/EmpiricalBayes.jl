@@ -31,7 +31,7 @@ function fit(::Type{BradDeconvolveR}, Xs; c0=0.01,
     BradDeconvolveR(prior_grid, g_prior, g_bias, g_cov)
 end
 
-function estimate(brad::BradDeconvolveR, target::LinearInferenceTarget; debias=true)
+function estimate(brad::BradDeconvolveR, target::LinearInferenceTarget; debias=false)
     gs = brad.g_prior
     g_bias = debias ? brad.g_bias : zero(gs)
     lin_coef = riesz_representer.(target,  brad.prior_grid)
@@ -55,7 +55,7 @@ function estimate(brad::Union{BradDeconvolveR, SmoothedBradDeconvolveR}, target:
 end
 
 
-function StatsBase.confint(brad::BradDeconvolveR, target::PosteriorTarget, alpha::Float64=0.1; debias=true)
+function StatsBase.confint(brad::BradDeconvolveR, target::PosteriorTarget, alpha::Float64=0.1; debias=false)
     num_est = estimate(brad, target.num; debias=debias)
     denom_est = estimate(brad, target.denom; debias=debias)
     point_est = num_est/denom_est
@@ -73,7 +73,7 @@ function StatsBase.confint(brad::BradDeconvolveR, target::PosteriorTarget, alpha
 end
 
 function estimate(brad::Union{BradDeconvolveR, SmoothedBradDeconvolveR},
-                  target::InferenceTarget, Xs; debias=true)
+                  target::InferenceTarget, Xs; debias=false)
     estimate(brad, target; debias=debias)
 end
 
@@ -100,7 +100,7 @@ function smoothed_riesz(smooth_g::SmoothedBradDeconvolveR, target::LinearInferen
     mm = MixtureModel(smooth_g)
     posterior_stats.(mm.components, target)
 end
-function estimate(brad::SmoothedBradDeconvolveR, target::LinearInferenceTarget; debias=true)
+function estimate(brad::SmoothedBradDeconvolveR, target::LinearInferenceTarget; debias=false)
     gs = brad.unsmoothed.g_prior
     g_bias = debias ? brad.unsmoothed.g_bias : zero(gs)
     lin_coef = smoothed_riesz(brad, target)
@@ -115,7 +115,7 @@ function confint(brad::SmoothedBradDeconvolveR, target::LinearInferenceTarget, a
     (point_est - q*sd, point_est + q*sd)
 end
 
-function confint(brad::SmoothedBradDeconvolveR, target::PosteriorTarget, alpha::Float64=0.1; debias=true)
+function confint(brad::SmoothedBradDeconvolveR, target::PosteriorTarget, alpha::Float64=0.1; debias=false)
     num_est = estimate(brad, target.num; debias=debias)
     denom_est = estimate(brad, target.denom; debias=debias)
     point_est = num_est/denom_est
