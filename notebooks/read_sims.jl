@@ -96,8 +96,8 @@ my_df = DataFrame( setting_idx = Int64[],
                 #@show d
                 brad = brad_combs[d]
                 d_b = brad_degs[d]
-                efron_est = estimate(brad,t)
-                efron_ci_left, efron_ci_right = confint(brad, t)
+                efron_est = estimate(brad,t; debias=false)
+                efron_ci_left, efron_ci_right = confint(brad, t; debias=false)
                 push!(my_df, (setting_idx, true_θ, "Efron", d_b, x, efron_est, efron_ci_left, efron_ci_right))
             end
         end
