@@ -28,7 +28,7 @@ end
 
 s = par_comb[j][:setting]
 setting_idx = s
-k = par_comb[j][:setting]
+k = par_comb[j][:k]
 
 #set_idx = [Regex(string("mysim_",x, )) for x in 1:n_settings];
 
@@ -63,7 +63,7 @@ my_df = DataFrame( setting_idx = Int64[],
 
 #for setting_idx=1:n_settings
     res_list = readdir("/scratch/users/ignat/sims/base_sim_Jan10_v2");
-    res_list = res_list[occursin.(set_idx), res_list)]
+    res_list = res_list[occursin.(set_idx, res_list)]
 
     # just to get d_true once
     file = string("/scratch/users/ignat/sims/base_sim_Jan10_v2/", res_list[1]);
@@ -81,7 +81,7 @@ my_df = DataFrame( setting_idx = Int64[],
         res_details = res[3][1]
         brad_combs = res_details[2]
         calib_vec = res_details[1]
-        for l=1:length(calib_vec)
+        for l in 1:length(calib_vec)
             calib_x = calib_vec[l]
             t = combo[:target][l]
             x = t.num.x
