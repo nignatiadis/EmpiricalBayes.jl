@@ -63,7 +63,7 @@ my_df = DataFrame( setting_idx = Int64[],
 
 #for setting_idx=1:n_settings
     res_list = readdir("/scratch/users/ignat/sims/base_sim_Jan10_v2");
-    res_list = res_list[occursin.(set_idx, res_list)]
+    res_list = res_list[occursin.(Ref(set_idx), res_list)]
 
     # just to get d_true once
     file = string("/scratch/users/ignat/sims/base_sim_Jan10_v2/", res_list[1]);
