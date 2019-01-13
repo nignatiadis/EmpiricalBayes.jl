@@ -125,7 +125,9 @@ function confint(brad::SmoothedBradDeconvolveR, target::PosteriorTarget, alpha::
 
     delta_method_coef = num_coef./denom_est .- denom_coef.*num_est./(denom_est^2)
 
-    sd = sqrt(delta_method_coef'*brad.unsmoothed.g_cov*delta_method_coef)
+    var_tmp = delta_method_coef'*brad.unsmoothed.g_cov*delta_method_coef
+
+    sd = var_tmp >= 0 ? sqrt(var_tmp) : Inf
 
     q = quantile(Normal(), 1-alpha/2)
 
