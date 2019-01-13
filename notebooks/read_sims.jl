@@ -26,9 +26,9 @@ for (set,k) in IterTools.product(1:n_settings, 1:6)
     push!(par_comb, Dict(:setting => set, :k=>k))
 end
 
-s = par_comb[:j]
+s = par_comb[j][:setting]
 setting_idx = s
-k = par_comb[:k]
+k = par_comb[j][:setting]
 
 #set_idx = [Regex(string("mysim_",x, )) for x in 1:n_settings];
 
@@ -102,7 +102,7 @@ my_df = DataFrame( setting_idx = Int64[],
             end
         end
     end
-end
+#end
 
 @save "/scratch/users/ignat/sims/base_sim_Jan10_v2/dfs/df_$(s)_$(k).jld2" my_df
 
