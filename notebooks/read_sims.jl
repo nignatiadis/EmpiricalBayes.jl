@@ -32,7 +32,7 @@ k = par_comb[j][:k]
 
 #set_idx = [Regex(string("mysim_",x, )) for x in 1:n_settings];
 
-set_idx = Regex(string("mysim_",s,"_",k))
+set_idx = Regex(string("mysim_",s,"_",k,"_"))
 
 marginal_grid = collect(range(-6,stop=6,length=1001));
 prior_grid = collect(range(-3,stop=3,length=121));
@@ -59,7 +59,8 @@ my_df = DataFrame( setting_idx = Int64[],
                    x=Float64[],
                    est = Float64[],
                    ci_left = Float64[],
-                   ci_right = Float64[])
+                   ci_right = Float64[],
+                   max_bias = Float64[])
 
 #for setting_idx=1:n_settings
     res_list = readdir("/scratch/users/ignat/sims/base_sim_Jan10_v2");
@@ -89,8 +90,10 @@ my_df = DataFrame( setting_idx = Int64[],
             #efron_est = estimate(brad,t)
             calib_est = estimate(calib_x, t)
             calib_ci_left, calib_ci_right = confint(calib_x,t)
+            max_bias = maxbias(calib_x, t)
             #efron_ci_left, efron_ci_right = confint(brad, t)
-            push!(my_df, (setting_idx, true_θ, "Calibrator", 0, x, calib_est, calib_ci_left, calib_ci_right))
+            push!(my_df, (setting_idx, true_θ, "Calibrator", 0, x,
+                         calib_est, calib_ci_left, calib_ci_right, max_bias))
 
             for d in 1:length(brad_degs)
                 #@show d
@@ -98,7 +101,9 @@ my_df = DataFrame( setting_idx = Int64[],
                 d_b = brad_degs[d]
                 efron_est = estimate(brad,t; debias=false)
                 efron_ci_left, efron_ci_right = confint(brad, t; debias=false)
-                push!(my_df, (setting_idx, true_θ, "Efron", d_b, x, efron_est, efron_ci_left, efron_ci_right))
+                efron_max_bias = maxbias(brad, t)
+                push!(my_df, (setting_idx, true_θ, "Efron", d_b, x,
+                       efron_est, efron_ci_left, efron_ci_right, efron_max_bias))
             end
         end
     end
