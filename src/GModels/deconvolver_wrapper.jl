@@ -134,6 +134,6 @@ function confint(brad::SmoothedBradDeconvolveR, target::PosteriorTarget, alpha::
     (point_est - q*sd, point_est + q*sd)
 end
 
-function maxbias(brad::SmoothedBradDeconvolveR, target::LinearInferenceTarget)
+function maxbias(brad::SmoothedBradDeconvolveR, target)
     zero(Float64)
 end

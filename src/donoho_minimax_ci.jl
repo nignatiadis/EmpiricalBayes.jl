@@ -197,6 +197,6 @@ function estimate(ci::CalibratedCI, target::PosteriorTarget)
     ci.calibrated_target
 end
 
-function maxbias(ci::CalibratedCI, target::PosteriorTarget)
+function maxbias(ci::CalibratedCI, target)
     ci.max_bias
 end
