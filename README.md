@@ -1,3 +1,6 @@
+# Archived: **See the [Empirikos.jl](https://github.com/nignatiadis/Empirikos.jl) package instead.**
+
+
 # EmpiricalBayes.jl
 
 [![Build Status](https://travis-ci.org/nignatiadis/EmpiricalBayes.jl.svg?branch=master)](https://travis-ci.org/nignatiadis/EmpiricalBayes.jl)
